@@ -195,7 +195,7 @@ class ArgUtils:
     @classmethod
     def configModelNames(cls, modelArgs: ModelArguments) -> ModelArguments:
         # Set up model, config, viz and embedding names
-        if not modelArgs.init_name in INITS:
+        if modelArgs.init_name not in INITS:
             logger.warn("Selected init name not in built-in models. Be careful.")
 
         attribs = ["model_name", "config_name", "embedding_name", "viz_name"]
@@ -262,23 +262,23 @@ class ArgUtils:
             TrainingArguments: Updated argument instance
         """
         # Set up parallel PyTorch device(s)
-        if torch.cuda.device_count() > 1 and args.n_gpu > 1:
-            if torch.cuda.device_count() < args.n_gpu:
-                args.n_gpu = torch.cuda.device_count()
-            if args.n_gpu < 1:
-                args.n_gpu = torch.cuda.device_count()
-            logging.info(
-                "Looks like we have {:d} GPUs to use. Going parallel.".format(
-                    args.n_gpu
-                )
-            )
-            args.device_ids = [i for i in range(0, args.n_gpu)]
-            args.src_device = "cuda:{}".format(args.device_ids[0])
+        # if torch.cuda.device_count() > 1 and args.n_gpu > 1:
+        #     if torch.cuda.device_count() < args.n_gpu:
+        #         args.n_gpu = torch.cuda.device_count()
+        #     if args.n_gpu < 1:
+        #         args.n_gpu = torch.cuda.device_count()
+        #     logging.info(
+        #         "Looks like we have {:d} GPUs to use. Going parallel.".format(
+        #             args.n_gpu
+        #         )
+        #     )
+        #     args.device_ids = [i for i in range(0, args.n_gpu)]
+        #     args.src_device = "cuda:{}".format(args.device_ids[0])
         # Set up parallel PyTorch single GPU device
-        elif torch.cuda.is_available():
+        if paddle.device.is_compiled_with_cuda() and args.n_gpu > 1:
             logging.info("Using a single GPU for training.")
-            args.device_ids = [0]
-            args.src_device = "cuda:{}".format(args.device_ids[0])
+            args.device_ids = [3]
+            args.src_device = "gpu:{}".format(args.device_ids[0])
             args.n_gpu = 1
         # CPU only
         else:

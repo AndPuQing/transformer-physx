@@ -135,7 +135,7 @@ class PhysformerGPT2(
         self.output_hidden_states = config.output_hidden_states
 
         self.drop = nn.Dropout(config.embd_pdrop)
-        self.h = nn.ModuleList(
+        self.h = nn.LayerList(
             [Block(config.n_ctx, config, scale=True) for _ in range(config.n_layer)]
         )
         self.ln_f = nn.LayerNorm(config.n_embd, epsilon=config.layer_norm_epsilon)

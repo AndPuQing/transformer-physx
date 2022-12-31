@@ -118,7 +118,7 @@ class EmbeddingModel(nn.Layer):
             logger.info(
                 "Loading embedding model from file: {}".format(file_or_path_directory)
             )
-            self.load_state_dict(
+            self.load_dict(
                 paddle.load(
                     file_or_path_directory, map_location=lambda storage, loc: storage
                 )
@@ -128,7 +128,7 @@ class EmbeddingModel(nn.Layer):
                 file_or_path_directory, "{}{:d}.pth".format(self.model_name, epoch)
             )
             logger.info("Loading embedding model from file: {}".format(file_path))
-            self.load_state_dict(
+            self.load_dict(
                 paddle.load(file_path, map_location=lambda storage, loc: storage)
             )
         else:
