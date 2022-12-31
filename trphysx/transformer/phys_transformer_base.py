@@ -50,12 +50,14 @@ class PhysformerBase(nn.Layer):
         if isinstance(module, (nn.Linear, nn.Embedding, Conv1D)):
             # Slightly different from the TF version which uses truncated_normal for initialization
             # cf https://github.com/pytorch/pytorch/pull/5617
-            module.weight.data.normal_(mean=0.0, std=self.config.initializer_range)
+            module.weight.initialize = paddle.nn.initializer.Normal(
+                std=self.config.initializer_range
+            )
             if isinstance(module, (nn.Linear, Conv1D)) and module.bias is not None:
-                module.bias.data.zero_()
+                module.bias.initialize = paddle.nn.initializer.Constant(value=0.0)
         elif isinstance(module, nn.LayerNorm):
-            module.bias.data.zero_()
-            module.weight.data.fill_(1.0)
+            module.bias.initialize = paddle.nn.initializer.Constant(value=0.0)
+            module.weight.initialize = paddle.nn.initializer.Constant(value=1.0)
 
     def _num_parameters(self) -> int:
         """Gets number of learnable parameters
