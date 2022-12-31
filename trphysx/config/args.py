@@ -275,12 +275,11 @@ class ArgUtils:
         #     args.device_ids = [i for i in range(0, args.n_gpu)]
         #     args.src_device = "cuda:{}".format(args.device_ids[0])
         # Set up parallel PyTorch single GPU device
-        if paddle.device.is_compiled_with_cuda() and args.n_gpu > 1:
+        if paddle.device.is_compiled_with_cuda() and args.n_gpu == 1:
             logging.info("Using a single GPU for training.")
             args.device_ids = [3]
             args.src_device = "gpu:{}".format(args.device_ids[0])
             args.n_gpu = 1
-        # CPU only
         else:
             logging.info("No GPUs found, will be training on CPU.")
             args.src_device = "cpu"
