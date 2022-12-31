@@ -51,15 +51,11 @@ class MaskedAttention(nn.Layer):
         if mask == "tril":  # Upper triangular mask
             self.register_buffer(
                 "bias",
-                paddle.tril(paddle.ones((n_ctx, n_ctx), dtype=paddle.uint8)).reshape(
-                    1, 1, n_ctx, n_ctx
-                ),
+                paddle.tril(paddle.ones((n_ctx, n_ctx))).reshape(1, 1, n_ctx, n_ctx),
             )
         elif mask == "block":  # Block diagonal, tril mask
-            tril = paddle.tril(paddle.ones((n_ctx, n_ctx), dtype=paddle.uint8))
-            block = paddle.ones(
-                (config.n_patches, config.n_patches), dtype=paddle.uint8
-            )
+            tril = paddle.tril(paddle.ones((n_ctx, n_ctx)))
+            block = paddle.ones((config.n_patches, config.n_patches))
             # block_diag = torch.block_diag(
             #     *[block for i in range(n_ctx // config.n_patches)]
             # )
