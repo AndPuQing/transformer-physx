@@ -12,6 +12,7 @@ from trphysx.config import PhysConfig
 
 logger = logging.getLogger(__name__)
 
+
 class RosslerConfig(PhysConfig):
     """
     This is the configuration class for the modeling of the Rossler system.
@@ -24,7 +25,7 @@ class RosslerConfig(PhysConfig):
         n_ctx=32,
         n_embd=32,
         n_layer=4,
-        n_head=4, # n_head must be a factor of n_embd
+        n_head=4,  # n_head must be a factor of n_embd
         state_dims=[3],
         activation_function="gelu_new",
         initializer_range=0.02,

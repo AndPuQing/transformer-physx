@@ -9,7 +9,6 @@ github: https://github.com/zabaras/transformer-physx
 """
 import paddle
 import numpy as np
-from typing import Optional
 
 import matplotlib as mpl
 
