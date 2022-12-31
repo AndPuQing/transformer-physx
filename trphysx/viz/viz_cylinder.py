@@ -302,7 +302,7 @@ class CylinderViz(Viz):
         if bidx is None:
             bidx = np.random.randint(0, y_pred.shape[0])
         if tidx is None:
-            tidx = np.random.randint(0, y_pred.size(1))
+            tidx = np.random.randint(0, y_pred.shape[1])
         y_pred = y_pred[bidx, tidx].detach().cpu().numpy()
         y_target = y_target[bidx, tidx].detach().cpu().numpy()
         y_error = np.power(y_pred - y_target, 2)

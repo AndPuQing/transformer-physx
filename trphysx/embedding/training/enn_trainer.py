@@ -136,7 +136,7 @@ class EmbeddingTrainer:
             if epoch % 5 == 0 or epoch == 1:
                 output = self.evaluate(eval_dataloader, epoch=epoch)
                 logger.info(
-                    "Epoch {:d}: Test loss: {:.02f}".format(epoch, output["test_error"])
+                    "Epoch {:d}: Test loss: {:.02f}".format(epoch, output["test_error"].numpy()[0])
                 )
 
             # Save model checkpoint
