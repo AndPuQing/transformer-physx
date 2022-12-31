@@ -125,9 +125,7 @@ class EmbeddingTrainer:
 
             # Progress learning rate scheduler
             lr_scheduler.step()
-            for param_group in optimizer.param_groups:
-                cur_lr = param_group["lr"]
-                break
+            cur_lr = optimizer.get_lr()
             logger.info(
                 "Epoch {:d}: Training loss {:.03f}, Lr {:.05f}".format(
                     epoch, loss_total, cur_lr
