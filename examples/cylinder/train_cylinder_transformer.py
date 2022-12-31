@@ -31,7 +31,7 @@ from trphysx.utils.trainer import Trainer
 logger = logging.getLogger(__name__)
 
 if __name__ == "__main__":
-
+    paddle.set_device("gpu:3")
     sys.argv = sys.argv + ["--init_name", "cylinder"]
     # sys.argv = sys.argv + ["--embedding_file_or_path", "./embedding_cylinder300.pth"]
     sys.argv = sys.argv + ["--training_h5_file", "./data/cylinder_train.hdf5"]
