@@ -12,8 +12,8 @@ github: https://github.com/zabaras/transformer-physx
 """
 import sys
 import logging
-import torch
-from torch.optim.lr_scheduler import ExponentialLR
+import paddle
+from paddle.optim.lr_scheduler import ExponentialLR
 
 from trphysx.config.configuration_auto import AutoPhysConfig
 from trphysx.embedding.embedding_auto import AutoEmbeddingModel
@@ -22,7 +22,7 @@ from trphysx.embedding.training import *
 
 logger = logging.getLogger(__name__)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     sys.argv = sys.argv + ["--exp_name", "cylinder"]
     sys.argv = sys.argv + ["--training_h5_file", "/data/cylinder_training.hdf5"]
@@ -36,12 +36,13 @@ if __name__ == '__main__':
     logging.basicConfig(
         format="%(asctime)s - %(levelname)s - %(name)s -   %(message)s",
         datefmt="%m/%d/%Y %H:%M:%S",
-        level=logging.INFO)
+        level=logging.INFO,
+    )
 
-    args = EmbeddingParser().parse()       
-    if(torch.cuda.is_available()):
+    args = EmbeddingParser().parse()
+    if paddle.cuda.is_available():
         use_cuda = "cuda"
-    args.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    args.device = paddle.device("cuda:0" if paddle.cuda.is_available() else "cpu")
     logger.info("Torch device: {}".format(args.device))
 
     # Load transformer config file
@@ -49,18 +50,17 @@ if __name__ == '__main__':
     data_handler = AutoDataHandler.load_data_handler(args.exp_name)
     viz = AutoViz.load_viz(args.exp_name, plot_dir=args.plot_dir)
 
-     # Set up data-loaders
+    # Set up data-loaders
     training_loader = data_handler.createTrainingLoader(
-                        args.training_h5_file, 
-                        block_size=args.block_size, 
-                        stride=args.stride, 
-                        ndata=args.n_train, 
-                        batch_size=args.batch_size)
+        args.training_h5_file,
+        block_size=args.block_size,
+        stride=args.stride,
+        ndata=args.n_train,
+        batch_size=args.batch_size,
+    )
     testing_loader = data_handler.createTestingLoader(
-                        args.eval_h5_file, 
-                        block_size=32, 
-                        ndata=args.n_eval, 
-                        batch_size=8)
+        args.eval_h5_file, block_size=32, ndata=args.n_eval, batch_size=8
+    )
 
     # Set up model
     model = AutoEmbeddingModel.init_trainer(args.exp_name, config).to(args.device)
@@ -70,7 +70,11 @@ if __name__ == '__main__':
     if args.epoch_start > 1:
         model.load_model(args.ckpt_dir, args.epoch_start)
 
-    optimizer = torch.optim.Adam(model.parameters(), lr=args.lr*0.995**(args.epoch_start-1), weight_decay=1e-8)
+    optimizer = paddle.optim.Adam(
+        model.parameters(),
+        lr=args.lr * 0.995 ** (args.epoch_start - 1),
+        weight_decay=1e-8,
+    )
     scheduler = ExponentialLR(optimizer, gamma=0.995)
 
     trainer = EmbeddingTrainer(model, args, (optimizer, scheduler), viz)

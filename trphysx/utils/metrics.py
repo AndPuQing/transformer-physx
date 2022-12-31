@@ -7,13 +7,15 @@ doi:
 github: https://github.com/zabaras/transformer-physx
 =====
 """
-import os
 import logging
-import h5py
-import numpy as np
+import os
 from dataclasses import dataclass
 
+import h5py
+import numpy as np
+
 logger = logging.getLogger(__name__)
+
 
 @dataclass
 class Metrics:
@@ -23,6 +25,7 @@ class Metrics:
         file_path (str, optional): Path to write logging files
         file_name (str, optional): Log file name
     """
+
     file_path: str = "."
     file_name: str = "log_metrics.h5"
 
@@ -35,10 +38,10 @@ class Metrics:
         for key, value in kwargs.items():
             # Warn if value is not float or integer, there could be issues with it being stored in the hdf5 file
             if not isinstance(value, (int, float)):
-                logger.warn('Some values in metrics are not floats or integers.')
-            if(hasattr(self, key)):
+                logger.warn("Some values in metrics are not floats or integers.")
+            if hasattr(self, key):
                 attrib = getattr(self, key)
-                setattr(self, key, attrib+[value])
+                setattr(self, key, attrib + [value])
             else:
                 setattr(self, key, [value])
 
@@ -48,7 +51,7 @@ class Metrics:
         Args:
             file_name (str, optional): File name to write to
         """
-        self.__dumpToHDF5(file_name, mode='w')
+        self.__dumpToHDF5(file_name, mode="w")
 
     def appendToHDF5(self, file_name: str = None) -> None:
         """Appends the classes attributes to HDF5 file
@@ -56,9 +59,9 @@ class Metrics:
         Args:
             file_name (str, optional): File name to write to
         """
-        self.__dumpToHDF5(file_name, mode='a')
+        self.__dumpToHDF5(file_name, mode="a")
 
-    def __dumpToHDF5(self, file_name: str = None, mode: str ='a') -> None:
+    def __dumpToHDF5(self, file_name: str = None, mode: str = "a") -> None:
         """Dump the classes attributes to HDF5 file
 
         Args:
@@ -72,15 +75,15 @@ class Metrics:
 
         with h5py.File(file_name, "w") as f:
             for attr, value in self.__dict__.items():
-                if isinstance(value, str): # Skip file_name and file_path attrib
+                if isinstance(value, str):  # Skip file_name and file_path attrib
                     continue
                 # Check if data-set is already in h5file
                 if f.__contains__(attr):
-                    if mode == 'a': # Append mode
+                    if mode == "a":  # Append mode
                         data0 = list(f[attr])
                         del f[attr]
                         value = data0 + value
-                    else: # Write
+                    else:  # Write
                         del f[attr]
 
                 f.create_dataset(attr, data=np.array(value))

@@ -8,12 +8,13 @@ github: https://github.com/zabaras/transformer-physx
 =====
 """
 import os
-import torch
 from abc import abstractmethod
-from typing import Optional
-import matplotlib.pyplot as plt
 
-Tensor = torch.Tensor
+import matplotlib.pyplot as plt
+import paddle
+
+Tensor = paddle.Tensor
+
 
 class Viz(object):
     """Parent class for visualization
@@ -21,14 +22,16 @@ class Viz(object):
     Args:
         plot_dir (str, optional): Directory to save visualizations in. Defaults to None.
     """
+
     def __init__(self, plot_dir: str = None) -> None:
-        """Constructor method
-        """
+        """Constructor method"""
         super().__init__()
         self.plot_dir = plot_dir
 
     @abstractmethod
-    def plotPrediction(self, y_pred: Tensor, y_target: Tensor, plot_dir: str = None, **kwargs) -> None:
+    def plotPrediction(
+        self, y_pred: Tensor, y_target: Tensor, plot_dir: str = None, **kwargs
+    ) -> None:
         """Plots model prediction and target values
 
         Args:
@@ -43,7 +46,9 @@ class Viz(object):
         raise NotImplementedError("plotPrediction not initialized by child class.")
 
     @abstractmethod
-    def plotEmbeddingPrediction(self, y_pred: Tensor, y_target: Tensor, plot_dir: str = None, **kwargs) -> None:
+    def plotEmbeddingPrediction(
+        self, y_pred: Tensor, y_target: Tensor, plot_dir: str = None, **kwargs
+    ) -> None:
         """Plots model prediction and target values during the embedding training
 
         Args:
@@ -55,9 +60,17 @@ class Viz(object):
         Raises:
             NotImplementedError: If function has not been overridden by a child dataset class.
         """
-        raise NotImplementedError("plotEmbeddingPrediction not initialized by child class.")
+        raise NotImplementedError(
+            "plotEmbeddingPrediction not initialized by child class."
+        )
 
-    def saveFigure(self, plot_dir: str = None, file_name: str = 'plot', savepng: bool = True, savepdf: bool = False) -> None:
+    def saveFigure(
+        self,
+        plot_dir: str = None,
+        file_name: str = "plot",
+        savepng: bool = True,
+        savepdf: bool = False,
+    ) -> None:
         """Saves active matplotlib figure to file
 
         Args:
@@ -69,12 +82,13 @@ class Viz(object):
         if plot_dir is None:
             plot_dir = self.plot_dir
 
-        assert os.path.isdir(plot_dir), 'Provided directory string is not a valid directory: {:s}'.format(plot_dir)
+        assert os.path.isdir(
+            plot_dir
+        ), "Provided directory string is not a valid directory: {:s}".format(plot_dir)
         # Create plotting path if it does not exist
         os.makedirs(plot_dir, exist_ok=True)
-        
-        if savepng:
-            plt.savefig(os.path.join(plot_dir, file_name)+".png", bbox_inches='tight')
-        if savepdf:
-            plt.savefig(os.path.join(plot_dir, file_name)+".pdf", bbox_inches='tight')
 
+        if savepng:
+            plt.savefig(os.path.join(plot_dir, file_name) + ".png", bbox_inches="tight")
+        if savepdf:
+            plt.savefig(os.path.join(plot_dir, file_name) + ".pdf", bbox_inches="tight")

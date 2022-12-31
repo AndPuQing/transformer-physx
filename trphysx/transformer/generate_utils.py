@@ -8,25 +8,23 @@ github: https://github.com/zabaras/transformer-physx
 =====
 """
 import logging
-import torch
+import paddle
 from typing import Tuple, Dict
-from torch import Tensor
-from torch.nn import functional as F
 
 logger = logging.getLogger(__name__)
 
-Tensor = torch.Tensor
-LongTensor = torch.LongTensor
+Tensor = paddle.Tensor
+
 
 class GenerationMixin:
-    """Class containing generative functions for transformers
-    """
+    """Class containing generative functions for transformers"""
+
     def prepare_inputs_for_generation(
-        self, 
+        self,
         inputs_embeds: Tensor,
         position_ids: Tensor = None,
         prop_embeds: Tensor = None,
-        **kwargs
+        **kwargs,
     ) -> Dict[str, Tensor]:
         """Prepares input features for prediction
 
@@ -40,17 +38,18 @@ class GenerationMixin:
         inputs_features = {
             "inputs_embeds": inputs_embeds,
             "position_ids": position_ids,
-            "prop_embeds": prop_embeds }
+            "prop_embeds": prop_embeds,
+        }
         inputs = {}
 
         for k, v in inputs_features.items():
-            if isinstance(v, torch.Tensor):
+            if isinstance(v, paddle.Tensor):
                 # Make sure all embeddings are of equal and proper length
-                inputs[k] = v[:, -self.config.n_ctx:]
+                inputs[k] = v[:, -self.config.n_ctx :]
 
         if "past" in kwargs.keys():
             for k, v in inputs.items():
-                if isinstance(v, torch.Tensor):
+                if isinstance(v, paddle.Tensor):
                     inputs[k] = v[:, -1].unsqueeze(1)
 
         return {**inputs, **kwargs}
@@ -63,16 +62,16 @@ class GenerationMixin:
             return False
         return True
 
-    @torch.no_grad()
+    @paddle.no_grad()
     def generate(
         self,
         inputs_embeds: Tensor,
         position_ids: Tensor = None,
         prop_embeds: Tensor = None,
         max_length: int = None,
-        attention_mask: LongTensor = None,
+        attention_mask: Tensor = None,
         use_cache: bool = False,
-        **model_specific_kwargs
+        **model_specific_kwargs,
     ) -> Tuple[Tensor]:
         """Generated a predicted sequence of features
 
@@ -90,12 +89,14 @@ class GenerationMixin:
         max_length = max_length if max_length is not None else self.config.max_length
         use_cache = use_cache if use_cache is not None else self.config.use_cache
 
-        assert isinstance(max_length, int) and max_length > 0, "`max_length` should be a strictly positive integer."
+        assert (
+            isinstance(max_length, int) and max_length > 0
+        ), "`max_length` should be a strictly positive integer."
         assert isinstance(use_cache, bool), "`use_cache` should be a boolean."
 
         # create attention mask if necessary
         # if attention_mask is None:
-        #     attention_mask = torch.ones(inputs_embeds.shape).to(inputs_embeds.device)
+        #     attention_mask = paddle.ones(inputs_embeds.shape).to(inputs_embeds.device)
 
         output = self._generate_time_series(
             inputs_embeds,
@@ -116,9 +117,9 @@ class GenerationMixin:
         prop_embeds: Tensor,
         max_length: int,
         use_cache: bool = None,
-        **model_specific_kwargs
+        **model_specific_kwargs,
     ) -> Tuple[Tensor]:
-        """Function that calls model forward to predict 
+        """Function that calls model forward to predict
 
         Args:
             inputs_embeds (Tensor): [batch, seq, n_embed] Input feature tensor
@@ -141,32 +142,34 @@ class GenerationMixin:
         while cur_len < max_length:
             # Prepare inputs for transformer
             model_inputs = self.prepare_inputs_for_generation(
-                inputs_embeds, 
-                position_ids, 
-                prop_embeds, 
-                use_cache=use_cache, 
-                past = past,
+                inputs_embeds,
+                position_ids,
+                prop_embeds,
+                use_cache=use_cache,
+                past=past,
                 **model_specific_kwargs,
             )
 
             outputs = self.forward(**model_inputs)
 
-            next_output = outputs[0][:,-1:]
+            next_output = outputs[0][:, -1:]
 
             if self._use_cache(outputs, use_cache):
-                past = [output[:, :, :, -(self.config.n_ctx-1):] for output in outputs[1]]
+                past = [
+                    output[:, :, :, -(self.config.n_ctx - 1) :] for output in outputs[1]
+                ]
 
             # add past output embedding and increase length by one
-            inputs_embeds = torch.cat([inputs_embeds, next_output], dim=1)
+            inputs_embeds = paddle.concat([inputs_embeds, next_output], axis=1)
             cur_len = cur_len + 1
 
             # If number of time-steps has surpassed model capacity, start dropping
             # the earliest time-step from the past states
             # if(cur_len > self.config.n_ctx):
-                # Dim [keys/query, batch, heads, tsteps, n_embed]
-                # past = tuple(attention_state[:,:,:,1:] for attention_state in past)
+            # Dim [keys/query, batch, heads, tsteps, n_embed]
+            # past = tuple(attention_state[:,:,:,1:] for attention_state in past)
 
-        return (inputs_embeds, ) + outputs[1:]
+        return (inputs_embeds,) + outputs[1:]
 
     @staticmethod
     def _reorder_cache(past: Tuple, beam_idx: Tensor) -> Tuple[Tensor]:

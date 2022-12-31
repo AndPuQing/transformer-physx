@@ -11,16 +11,18 @@ import logging
 import os
 import pickle
 import time
-import h5py
-
-import torch
-from typing import Dict
 from abc import abstractmethod
+from typing import Dict
+
+import h5py
+import paddle
 from filelock import FileLock
 from torch.utils.data.dataset import Dataset
+
 from ..embedding.embedding_model import EmbeddingModel
 
 logger = logging.getLogger(__name__)
+
 
 class PhysicalDataset(Dataset):
     """Parent class for training and evaluation datasets for physical transformers.
@@ -36,6 +38,7 @@ class PhysicalDataset(Dataset):
         overwrite_cache (bool, optional): Overwrite cache file if it exists, i.e. embed the raw data from file. Defaults to False.
         cache_path (str, optional): Path to save the cached embeddings at. Defaults to None.
     """
+
     def __init__(
         self,
         embedder: EmbeddingModel,
@@ -46,11 +49,10 @@ class PhysicalDataset(Dataset):
         eval: bool = False,
         overwrite_cache: bool = False,
         cache_path: str = None,
-        **kwargs
+        **kwargs,
     ):
-        """Constructor method
-        """
-        assert os.path.isfile(file_path), 'Provided data file path does not exist!'
+        """Constructor method"""
+        assert os.path.isfile(file_path), "Provided data file path does not exist!"
 
         self.block_size = block_size
         self.stride = stride
@@ -61,7 +63,13 @@ class PhysicalDataset(Dataset):
         if cache_path is None or not os.path.isdir(cache_path):
             cache_path = directory
         cached_features_file = os.path.join(
-            cache_path, "cached{}_{}_{}_{}".format(ndata, embedder.__class__.__name__, str(block_size), filename,),
+            cache_path,
+            "cached{}_{}_{}_{}".format(
+                ndata,
+                embedder.__class__.__name__,
+                str(block_size),
+                filename,
+            ),
         )
 
         # Make sure only the first process in distributed training processes the dataset,
@@ -82,21 +90,25 @@ class PhysicalDataset(Dataset):
 
                 self.write_cache(cached_features_file)
 
-    def read_cache(self, cached_features_file:str) -> None:
+    def read_cache(self, cached_features_file: str) -> None:
         """Default method to read cache file into object.
 
         Args:
             cached_features_file (str): Cache file path
         """
-        assert os.path.isfile(cached_features_file), 'Provided cache file path does not exist!'
+        assert os.path.isfile(
+            cached_features_file
+        ), "Provided cache file path does not exist!"
 
         start = time.time()
         with open(cached_features_file, "rb") as handle:
             self.examples, self.states = pickle.load(handle)
         logger.info(
-            f"Loading features from cached file {cached_features_file} [took %.3f s]", time.time() - start)
+            f"Loading features from cached file {cached_features_file} [took %.3f s]",
+            time.time() - start,
+        )
 
-    def write_cache(self, cached_features_file:str) -> None:
+    def write_cache(self, cached_features_file: str) -> None:
         """Default method to write cache file .
 
         Args:
@@ -105,9 +117,13 @@ class PhysicalDataset(Dataset):
         start = time.time()
         os.makedirs(os.path.dirname(cached_features_file), exist_ok=True)
         with open(cached_features_file, "wb") as handle:
-            pickle.dump((self.examples, self.states), handle, protocol=pickle.HIGHEST_PROTOCOL)
+            pickle.dump(
+                (self.examples, self.states), handle, protocol=pickle.HIGHEST_PROTOCOL
+            )
         logger.info(
-            "Saving features into cached file %s [took %.3f s]", cached_features_file, time.time() - start
+            "Saving features into cached file %s [took %.3f s]",
+            cached_features_file,
+            time.time() - start,
         )
 
     @abstractmethod
@@ -122,15 +138,23 @@ class PhysicalDataset(Dataset):
         Raises:
             NotImplementedError: If function has not been overridden by a child dataset class.
         """
-        raise NotImplementedError("embed_data function has not been properly overridden by a child class")
+        raise NotImplementedError(
+            "embed_data function has not been properly overridden by a child class"
+        )
 
     def __len__(self):
         return len(self.examples)
 
-    def __getitem__(self, i) -> Dict[str, torch.Tensor]:
+    def __getitem__(self, i) -> Dict[str, paddle.Tensor]:
         # Eval dataset need to return states
         if self.eval:
-            return {'inputs_embeds': self.examples[i][:1], 'labels_embeds': self.examples[i], 'states': self.states[i]}
+            return {
+                "inputs_embeds": self.examples[i][:1],
+                "labels_embeds": self.examples[i],
+                "states": self.states[i],
+            }
         else:
-            return {'inputs_embeds': self.examples[i][:-1], 'labels_embeds': self.examples[i][1:]}
-            
+            return {
+                "inputs_embeds": self.examples[i][:-1],
+                "labels_embeds": self.examples[i][1:],
+            }
