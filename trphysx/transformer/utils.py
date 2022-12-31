@@ -42,7 +42,7 @@ class Conv1D(nn.Layer):
             dtype="float32",
             default_initializer=paddle.nn.initializer.Normal(std=0.02),
         )
-        self.bias = paddle.create_parameter(nf, dtype="float32")
+        self.bias = paddle.create_parameter([nf], dtype="float32")
         # self.weight = nn.Parameter(w)
         # self.bias = nn.Parameter(paddle.zeros(nf))
 
