@@ -70,8 +70,10 @@ if __name__ == "__main__":
     viz = AutoViz.load_viz(model_args.viz_name, plot_dir=training_args.plot_dir)
 
     # Init transformer model
-    transformer = PhysformerGPT2(config, model_args.model_name)
-    model = PhysformerTrain(config, transformer)
+    transformer = PhysformerGPT2(config, model_args.model_name).to(
+        training_args.src_device
+    )
+    model = PhysformerTrain(config, transformer).to(training_args.src_device)
     if training_args.epoch_start > 0:
         model.load_model(training_args.ckpt_dir, epoch=training_args.epoch_start)
     if model_args.transformer_file_or_path:
