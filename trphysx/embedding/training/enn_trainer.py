@@ -96,13 +96,14 @@ class EmbeddingTrainer:
             eval_dataloader (DataLoader): Evaluation dataloader
         """
         optimizer = self.optimizers[0]
+        optimizer.grad_clip = paddle.nn.ClipGradByGlobalNorm(clip_norm=0.1)
         lr_scheduler = self.optimizers[1]
         # Loop over epochs
         for epoch in range(self.args.epoch_start + 1, self.args.epochs + 1):
 
             loss_total = 0.0
             loss_reconstruct = 0.0
-            self.model.zero_grad()
+            self.model.clear_gradients()
             for mbidx, inputs in enumerate(training_loader):
 
                 loss0, loss_reconstruct0 = self.model(**inputs)
@@ -112,9 +113,8 @@ class EmbeddingTrainer:
                 loss_total = loss_total + loss0.detach()
                 # Backwards!
                 loss0.backward()
-                paddle.nn.utils.clip_grad_norm_(self.model.parameters(), 0.1)
                 optimizer.step()
-                optimizer.zero_grad()
+                optimizer.clear_grad()
 
                 if mbidx + 1 % 10 == 0:
                     logger.info(

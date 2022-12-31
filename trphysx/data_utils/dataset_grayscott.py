@@ -46,18 +46,18 @@ class GrayscottDataset(PhysicalDataset):
             # data_series = torch.nn.functional.interpolate(data_series, (32, 32, 32), mode='trilinear', align_corners=True)
 
             embedded_series = paddle.zeros(
-                [data_series.size(0)] + [embedder.embedding_dims]
+                [data_series.shape[0]] + [embedder.embedding_dims]
             )
             with paddle.no_grad():
                 # Mini-batch embedding due to model size
-                for i in range(0, data_series.size(0), 96):
+                for i in range(0, data_series.shape[0], 96):
                     embedded_series[i : i + 96] = embedder.embed(
                         data_series[i : i + 96]
                     ).cpu()
 
             # Stride over time-series
             for i in range(
-                0, data_series.size(0) - self.block_size + 1, self.stride
+                0, data_series.shape[0] - self.block_size + 1, self.stride
             ):  # Truncate in block of block_size
                 data_series0 = embedded_series[i : i + self.block_size]
 
@@ -136,9 +136,9 @@ class GrayscottPredictDataset(GrayscottDataset):
             .view(-1, self.embedder.embedding_dims)
             .to(self.embedder.devices[0])
         )
-        out = paddle.zeros([x.size(0)] + self.embedder.input_dims)
+        out = paddle.zeros([x.shape[0]] + self.embedder.input_dims)
         # Mini-batch
-        for i in range(0, x.size(0), mb_size):
+        for i in range(0, x.shape[0], mb_size):
             out[i : i + mb_size] = self.embedder.recover(x[i : i + mb_size]).cpu()
 
         # out = self.embedder.recover(x)

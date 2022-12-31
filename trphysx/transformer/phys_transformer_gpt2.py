@@ -70,9 +70,9 @@ class Block(nn.Layer):
         """Constructor"""
         super().__init__()
         nx = config.n_embd
-        self.ln_1 = nn.LayerNorm(nx, eps=config.layer_norm_epsilon)
+        self.ln_1 = nn.LayerNorm(nx, epsilon=config.layer_norm_epsilon)
         self.attn = MaskedAttention(nx, n_ctx, config, scale)
-        self.ln_2 = nn.LayerNorm(nx, eps=config.layer_norm_epsilon)
+        self.ln_2 = nn.LayerNorm(nx, epsilon=config.layer_norm_epsilon)
         self.mlp = MLP(4 * nx, config)
 
     def forward(
@@ -138,7 +138,7 @@ class PhysformerGPT2(
         self.h = nn.ModuleList(
             [Block(config.n_ctx, config, scale=True) for _ in range(config.n_layer)]
         )
-        self.ln_f = nn.LayerNorm(config.n_embd, eps=config.layer_norm_epsilon)
+        self.ln_f = nn.LayerNorm(config.n_embd, epsilon=config.layer_norm_epsilon)
         self.mlp_f = nn.Linear(config.n_embd, config.n_embd)
         self.wpe = nn.Embedding(config.n_ctx, config.n_embd)
         self.apply(self._init_weights)
@@ -188,7 +188,7 @@ class PhysformerGPT2(
             position_ids = position_ids.view(-1, input_shape[-1])
 
         if prop_embeds is not None:
-            assert inputs_embeds.size(0) == prop_embeds.size(
+            assert inputs_embeds.shape[0] == prop_embeds.size(
                 0
             ), "Property embeddings do not match the size of the input"
             prop_embeds = prop_embeds[:, : inputs_embeds.size(1)]
@@ -212,7 +212,7 @@ class PhysformerGPT2(
             position_ids = (
                 position_ids.unsqueeze(0)
                 .view(-1, input_shape[-1])
-                .repeat(inputs_embeds.size(0), 1)
+                .repeat(inputs_embeds.shape[0], 1)
             )
 
         # Attention mask.

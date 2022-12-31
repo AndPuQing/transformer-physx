@@ -13,7 +13,7 @@ github: https://github.com/zabaras/transformer-physx
 import sys
 import logging
 import paddle
-from paddle.optim.lr_scheduler import ExponentialLR
+from paddle.optimizer.lr import ExponentialDecay
 
 from trphysx.config.configuration_auto import AutoPhysConfig
 from trphysx.embedding.embedding_auto import AutoEmbeddingModel
@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 if __name__ == "__main__":
 
     sys.argv = sys.argv + ["--exp_name", "cylinder"]
-    sys.argv = sys.argv + ["--training_h5_file", "/data/cylinder_training.hdf5"]
+    sys.argv = sys.argv + ["--training_h5_file", "/data/cylinder_train.hdf5"]
     sys.argv = sys.argv + ["--eval_h5_file", "/data/cylinder_valid.hdf5"]
     sys.argv = sys.argv + ["--batch_size", "64"]
     sys.argv = sys.argv + ["--block_size", "4"]

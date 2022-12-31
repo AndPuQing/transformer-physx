@@ -95,7 +95,7 @@ ACT2FN = {
     "gelu_fast": gelu_fast,
     "mish": mish,
     "linear": linear_act,
-    "sigmoid": paddle.sigmoid,
+    "sigmoid": paddle.nn.functional.sigmoid,
 }
 
 

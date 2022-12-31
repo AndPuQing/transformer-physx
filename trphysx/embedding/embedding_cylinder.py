@@ -94,8 +94,8 @@ class CylinderEmbedding(EmbeddingModel):
 
         self.observableNetFC = nn.Sequential(
             # nn.Linear(config.n_embd // 32 * 4 * 8, config.n_embd-1),
-            nn.LayerNorm(config.n_embd, eps=config.layer_norm_epsilon),
-            # nn.BatchNorm1d(config.n_embd, eps=config.layer_norm_epsilon),
+            nn.LayerNorm(config.n_embd, epsilon=config.layer_norm_epsilon),
+            # nn.BatchNorm1d(config.n_embd, epsilon=config.layer_norm_epsilon),
             nn.Dropout(config.embd_pdrop),
         )
 
@@ -167,10 +167,10 @@ class CylinderEmbedding(EmbeddingModel):
 
         # The matrix here is a small NN since we need to make it dependent on the viscosity
         self.kMatrixUT = nn.Sequential(
-            nn.Linear(1, 50), nn.ReLU(), nn.Linear(50, self.xidx.size(0))
+            nn.Linear(1, 50), nn.ReLU(), nn.Linear(50, self.xidx.shape[0])
         )
         self.kMatrixLT = nn.Sequential(
-            nn.Linear(1, 50), nn.ReLU(), nn.Linear(50, self.xidx.size(0))
+            nn.Linear(1, 50), nn.ReLU(), nn.Linear(50, self.xidx.shape[0])
         )
         # Normalization occurs inside the model
         self.register_buffer("mu", paddle.to_tensor([0.0, 0.0, 0.0, 0.0]))
@@ -196,12 +196,16 @@ class CylinderEmbedding(EmbeddingModel):
         )
         x = self._normalize(x)
         g0 = self.observableNet(x)
-        g = self.observableNetFC(g0.view(g0.size(0), -1))
+        g = self.observableNetFC(g0.reshape((g0.shape[0], -1)))
         # Decode
-        out = self.recoveryNet(g.view(g0.shape))
+        out = self.recoveryNet(g.reshape(g0.shape))
         xhat = self._unnormalize(out)
         # Apply cylinder mask
-        mask0 = self.mask.repeat(xhat.size(0), xhat.size(1), 1, 1) is True
+        self.mask = paddle.to_tensor(self.mask, dtype=paddle.int64)
+        mask = self.mask.reshape((1, 1, self.mask.shape[0], self.mask.shape[1]))
+        mask0 = paddle.repeat_interleave(mask, xhat.shape[0], axis=0)
+        mask0 = paddle.repeat_interleave(mask0, xhat.shape[1], axis=1) is True
+        # mask0 = self.mask.repeat(xhat.shape[0], xhat.shape[1], 1, 1) is True
         xhat[mask0] = 0
 
         return g, xhat
@@ -223,7 +227,7 @@ class CylinderEmbedding(EmbeddingModel):
         x = self._normalize(x)
 
         g = self.observableNet(x)
-        g = self.observableNetFC(g.view(x.size(0), -1))
+        g = self.observableNetFC(g.view(x.shape[0], -1))
         return g
 
     def recover(self, g: Tensor) -> Tensor:
@@ -235,10 +239,13 @@ class CylinderEmbedding(EmbeddingModel):
         Returns:
             (Tensor): [B, 3, H, W] Physical feature tensor
         """
-        x = self.recoveryNet(g.view(-1, self.obsdim // 32, 4, 8))
+        x = self.recoveryNet(g.reshape((-1, self.obsdim // 32, 4, 8)))
         x = self._unnormalize(x)
         # Apply cylinder mask
-        mask0 = self.mask.repeat(x.size(0), x.size(1), 1, 1) == 1
+        self.mask = paddle.to_tensor(self.mask, dtype=paddle.int64)
+        mask = self.mask.reshape((1, 1, self.mask.shape[0], self.mask.shape[1]))
+        mask = paddle.repeat_interleave(mask, x.shape[0], axis=0)
+        mask0 = paddle.repeat_interleave(mask, x.shape[1], axis=1) == 1
         x[mask0] = 0
         return x
 
@@ -253,9 +260,7 @@ class CylinderEmbedding(EmbeddingModel):
             Tensor: [B, config.n_embd] Koopman observables at the next time-step
         """
         # Koopman operator
-        kMatrix = paddle.zeros((g.shape[0], self.obsdim, self.obsdim)).to(
-            self.devices[0]
-        )
+        kMatrix = paddle.zeros((g.shape[0], self.obsdim, self.obsdim))
         # Populate the off diagonal terms
         kMatrix[:, self.xidx, self.yidx] = self.kMatrixUT(100 * visc)
         kMatrix[:, self.yidx, self.xidx] = self.kMatrixLT(100 * visc)
@@ -326,18 +331,17 @@ class CylinderEmbeddingTrainer(EmbeddingTrainingHead):
                 | (float): Koopman based loss of current epoch
                 | (float): Reconstruction loss
         """
-        assert states.size(0) == viscosity.size(
-            0
+        assert (
+            states.shape[0] == viscosity.shape[0]
         ), "State variable and viscosity tensor should have the same batch dimensions."
 
         self.embedding_model.train()
-        device = self.embedding_model.devices[0]
 
         loss_reconstruct = 0
         mseLoss = nn.MSELoss()
 
-        xin0 = states[:, 0].to(device)  # Time-step
-        viscosity = viscosity.to(device)
+        xin0 = states[:, 0]  # Time-step
+        viscosity = viscosity
 
         # Model forward for initial time-step
         g0, xRec0 = self.embedding_model(xin0, viscosity)
@@ -347,7 +351,7 @@ class CylinderEmbeddingTrainer(EmbeddingTrainingHead):
         g1_old = g0
         # Loop through time-series
         for t0 in range(1, states.shape[1]):
-            xin0 = states[:, t0, :].to(device)  # Next time-step
+            xin0 = states[:, t0, :]  # Next time-step
             _, xRec1 = self.embedding_model(xin0, viscosity)
             # Apply Koopman transform
             g1Pred = self.embedding_model.koopmanOperation(g1_old, viscosity)

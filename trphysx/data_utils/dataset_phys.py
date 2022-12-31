@@ -17,7 +17,7 @@ from typing import Dict
 import h5py
 import paddle
 from filelock import FileLock
-from torch.utils.data.dataset import Dataset
+from paddle.io import Dataset
 
 from ..embedding.embedding_model import EmbeddingModel
 

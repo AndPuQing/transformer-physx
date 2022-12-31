@@ -14,7 +14,7 @@ from typing import Any, Dict, Tuple
 import numpy as np
 import paddle
 import paddle.nn as nn
-from torch.utils.data import DataLoader, Dataset, RandomSampler, SequentialSampler
+from paddle.io import Dataset, DataLoader, RandomSampler
 
 from ..config.args import TrainingArguments
 from ..data_utils.data_utils import DataCollator
@@ -421,7 +421,7 @@ class Trainer:
             )
             return 0
 
-        bsize = pred_embeds.size(0)
+        bsize = pred_embeds.shape[0]
         tsize = pred_embeds.size(1)
         device = self.embedding_model.devices[0]
 

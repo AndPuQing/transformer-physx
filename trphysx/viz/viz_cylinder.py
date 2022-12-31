@@ -87,7 +87,7 @@ class CylinderViz(Viz):
         for i, field in enumerate(["ux", "uy", "p"]):
             plt.close("all")
 
-            # fig, ax = plt.subplots(2+yPred0.size(0), yPred0.size(2), figsize=(2*yPred0.size(1), 3+3*yPred0.size(0)))
+            # fig, ax = plt.subplots(2+yPred0.shape[0], yPred0.size(2), figsize=(2*yPred0.size(1), 3+3*yPred0.shape[0]))
             fig, ax = plt.subplots(2, nsteps, figsize=(2.1 * nsteps, 2.25))
             fig.subplots_adjust(wspace=0.25)
 
@@ -219,7 +219,7 @@ class CylinderViz(Viz):
 
         # Set up figure
         cmap0 = "seismic"
-        # fig, ax = plt.subplots(2+yPred0.size(0), yPred0.size(2), figsize=(2*yPred0.size(1), 3+3*yPred0.size(0)))
+        # fig, ax = plt.subplots(2+yPred0.shape[0], yPred0.size(2), figsize=(2*yPred0.size(1), 3+3*yPred0.shape[0]))
         fig, ax = plt.subplots(2, nsteps, figsize=(2 * nsteps, 2.25))
         fig.subplots_adjust(wspace=0.25)
 
@@ -300,7 +300,7 @@ class CylinderViz(Viz):
             plot_dir = self.plot_dir
         # Convert to numpy array
         if bidx is None:
-            bidx = np.random.randint(0, y_pred.size(0))
+            bidx = np.random.randint(0, y_pred.shape[0])
         if tidx is None:
             tidx = np.random.randint(0, y_pred.size(1))
         y_pred = y_pred[bidx, tidx].detach().cpu().numpy()
@@ -317,7 +317,7 @@ class CylinderViz(Viz):
         # Set up figure
         cmap0 = "viridis"
         cmap1 = "inferno"
-        # fig, ax = plt.subplots(2+yPred0.size(0), yPred0.size(2), figsize=(2*yPred0.size(1), 3+3*yPred0.size(0)))
+        # fig, ax = plt.subplots(2+yPred0.shape[0], yPred0.size(2), figsize=(2*yPred0.size(1), 3+3*yPred0.shape[0]))
         fig, ax = plt.subplots(3, 3, figsize=(2.1 * 3, 2.25))
         fig.subplots_adjust(wspace=0.1)
 

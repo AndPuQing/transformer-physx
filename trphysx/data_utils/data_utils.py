@@ -43,8 +43,8 @@ class DataCollator:
         if not paddle.is_tensor(examples[0]):
             return examples
 
-        length_of_first = examples[0].size(0)
-        are_tensors_same_length = all(x.size(0) == length_of_first for x in examples)
+        length_of_first = examples[0].shape[0]
+        are_tensors_same_length = all(x.shape[0] == length_of_first for x in examples)
 
         if are_tensors_same_length:
             return paddle.stack(examples, axis=0)

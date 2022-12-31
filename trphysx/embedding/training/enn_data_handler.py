@@ -125,7 +125,7 @@ class LorenzDataHandler(EmbeddingDataHandler):
                 data_series = paddle.to_tensor(f[key])
                 # Stride over time-series
                 for i in range(
-                    0, data_series.size(0) - block_size + 1, stride
+                    0, data_series.shape[0] - block_size + 1, stride
                 ):  # Truncate in block of block_size
                     examples.append(data_series[i : i + block_size].unsqueeze(0))
 
@@ -153,9 +153,9 @@ class LorenzDataHandler(EmbeddingDataHandler):
         )
 
         # Needs to min-max normalization due to the reservoir matrix, needing to have a spectral density below 1
-        if data.size(0) < batch_size:
-            logger.warning("Lower batch-size to {:d}".format(data.size(0)))
-            batch_size = data.size(0)
+        if data.shape[0] < batch_size:
+            logger.warning("Lower batch-size to {:d}".format(data.shape[0]))
+            batch_size = data.shape[0]
 
         # Create dataset, collator, and dataloader
         dataset = self.LorenzDataset(data)
@@ -206,7 +206,7 @@ class LorenzDataHandler(EmbeddingDataHandler):
                 data_series = paddle.to_tensor(f[key])
                 # Stride over time-series
                 for i in range(
-                    0, data_series.size(0) - block_size + 1, block_size
+                    0, data_series.shape[0] - block_size + 1, block_size
                 ):  # Truncate in block of block_size
                     examples.append(data_series[i : i + block_size].unsqueeze(0))
                     break
@@ -219,9 +219,9 @@ class LorenzDataHandler(EmbeddingDataHandler):
 
         # Combine data-series
         data = paddle.concat(examples, axis=0)
-        if data.size(0) < batch_size:
-            logger.warning("Lower batch-size to {:d}".format(data.size(0)))
-            batch_size = data.size(0)
+        if data.shape[0] < batch_size:
+            logger.warning("Lower batch-size to {:d}".format(data.shape[0]))
+            batch_size = data.shape[0]
 
         dataset = self.LorenzDataset(data)
         data_collator = self.LorenzDataCollator()
@@ -310,14 +310,16 @@ class CylinderDataHandler(EmbeddingDataHandler):
 
             for key in f.keys():
                 visc0 = 2.0 / float(key)
-                ux = paddle.to_tensor(f[key + "/ux"])
-                uy = paddle.to_tensor(f[key + "/uy"])
-                p = paddle.to_tensor(f[key + "/p"])
+                ux = np.array(f[key + "/ux"])
+                uy = np.array(f[key + "/uy"])
+                p = np.array(f[key + "/p"])
+                ux = paddle.to_tensor(ux)
+                uy = paddle.to_tensor(uy)
+                p = paddle.to_tensor(p)
                 data_series = paddle.stack([ux, uy, p], axis=1)
-
                 # Stride over time-series
                 for i in range(
-                    0, data_series.size(0) - block_size + 1, stride
+                    0, data_series.shape[0] - block_size + 1, stride
                 ):  # Truncate in block of block_size
                     examples.append(data_series[i : i + block_size])
                     visc.append(paddle.to_tensor([visc0]))
@@ -346,9 +348,9 @@ class CylinderDataHandler(EmbeddingDataHandler):
             ]
         )
         # Needs to min-max normalization due to the reservoir matrix, needing to have a spectral density below 1
-        if data.size(0) < batch_size:
-            logging.warn("Lower batch-size to {:d}".format(data.size(0)))
-            batch_size = data.size(0)
+        if data.shape[0] < batch_size:
+            logging.warn("Lower batch-size to {:d}".format(data.shape[0]))
+            batch_size = data.shape[0]
 
         dataset = self.CylinderDataset(data, paddle.stack(visc, axis=0))
         data_collator = self.CylinderDataCollator()
@@ -396,13 +398,16 @@ class CylinderDataHandler(EmbeddingDataHandler):
             samples = 0
             for key in f.keys():
                 visc0 = 2.0 / float(key)
-                ux = paddle.to_tensor(f[key + "/ux"])
-                uy = paddle.to_tensor(f[key + "/uy"])
-                p = paddle.to_tensor(f[key + "/p"])
+                ux = np.array(f[key + "/ux"])
+                uy = np.array(f[key + "/uy"])
+                p = np.array(f[key + "/p"])
+                ux = paddle.to_tensor(ux)
+                uy = paddle.to_tensor(uy)
+                p = paddle.to_tensor(p)
                 data_series = paddle.stack([ux, uy, p], axis=1)
-                # Stride over time-series data_series.size(0)
+                # Stride over time-series data_series.shape[0]
                 for i in range(
-                    0, data_series.size(0) - block_size + 1, block_size
+                    0, data_series.shape[0] - block_size + 1, block_size
                 ):  # Truncate in block of block_size
                     examples.append(data_series[i : i + block_size])
                     visc.append(paddle.to_tensor([visc0]))
@@ -416,9 +421,9 @@ class CylinderDataHandler(EmbeddingDataHandler):
 
         # Combine data-series
         data = paddle.stack(examples, axis=0)
-        if data.size(0) < batch_size:
-            logging.warning("Lower batch-size to {:d}".format(data.size(0)))
-            batch_size = data.size(0)
+        if data.shape[0] < batch_size:
+            logging.warning("Lower batch-size to {:d}".format(data.shape[0]))
+            batch_size = data.shape[0]
 
         dataset = self.CylinderDataset(data, paddle.stack(visc, axis=0))
         data_collator = self.CylinderDataCollator()
@@ -535,7 +540,7 @@ class GrayScottDataHandler(EmbeddingDataHandler):
                 t = paddle.to_tensor(h5_file[key0 + "/t"])
                 # Create smaller time-series blocks
                 for i in range(
-                    0, t.size(0) - block_size + 1, stride
+                    0, t.shape[0] - block_size + 1, stride
                 ):  # Truncate in block of block_size
                     idx.append(i)
                     key.append(key0)
@@ -628,7 +633,7 @@ class GrayScottDataHandler(EmbeddingDataHandler):
                 t = paddle.to_tensor(h5_file[key0 + "/t"])
                 # Create smaller time-series blocks
                 for i in range(
-                    0, t.size(0) - block_size + 1, block_size
+                    0, t.shape[0] - block_size + 1, block_size
                 ):  # Truncate in block of block_size
                     idx.append(i)
                     key.append(key0)

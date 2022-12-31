@@ -38,7 +38,7 @@ class RosslerDataset(PhysicalDataset):
                 embedded_series = embedder.embed(data_series).cpu()
             # Stride over time-series
             for i in range(
-                0, data_series.size(0) - self.block_size + 1, self.stride
+                0, data_series.shape[0] - self.block_size + 1, self.stride
             ):  # Truncate in block of block_size
                 data_series0 = embedded_series[i : i + self.block_size]
                 self.examples.append(data_series0)

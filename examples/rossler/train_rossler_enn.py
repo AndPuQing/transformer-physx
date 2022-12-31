@@ -99,7 +99,7 @@ class RosslerDataHandler(EmbeddingDataHandler):
             for key in f.keys():
                 data_series = paddle.to_tensor(f[key])
                 # Stride over time-series by specified block size
-                for i in range(0, data_series.size(0) - block_size + 1, stride):
+                for i in range(0, data_series.shape[0] - block_size + 1, stride):
                     examples.append(data_series[i : i + block_size].unsqueeze(0))
 
                 samples = samples + 1
@@ -129,9 +129,9 @@ class RosslerDataHandler(EmbeddingDataHandler):
         )
 
         # Needs to min-max normalization due to the reservoir matrix, needing to have a spectral density below 1
-        if data.size(0) < batch_size:
-            logger.warn("Lower batch-size to {:d}".format(data.size(0)))
-            batch_size = data.size(0)
+        if data.shape[0] < batch_size:
+            logger.warn("Lower batch-size to {:d}".format(data.shape[0]))
+            batch_size = data.shape[0]
 
         dataset = self.RosslerDataset(data)
         data_collator = self.RosslerDataCollator()
@@ -180,7 +180,7 @@ class RosslerDataHandler(EmbeddingDataHandler):
                 data_series = paddle.to_tensor(f[key])
                 # Stride over time-series
                 for i in range(
-                    0, data_series.size(0) - block_size + 1, block_size
+                    0, data_series.shape[0] - block_size + 1, block_size
                 ):  # Truncate in block of block_size
                     examples.append(data_series[i : i + block_size].unsqueeze(0))
                     break
@@ -195,9 +195,9 @@ class RosslerDataHandler(EmbeddingDataHandler):
         data = paddle.concat(examples, axis=0)
         logger.info("Testing data-set size: {}".format(data.size()))
 
-        if data.size(0) < batch_size:
-            logger.warn("Lower batch-size to {:d}".format(data.size(0)))
-            batch_size = data.size(0)
+        if data.shape[0] < batch_size:
+            logger.warn("Lower batch-size to {:d}".format(data.shape[0]))
+            batch_size = data.shape[0]
 
         data = (data - self.mu.unsqueeze(0).unsqueeze(0)) / self.std.unsqueeze(
             0

@@ -93,7 +93,7 @@ class GrayScottEmbedding(EmbeddingModel):
             nn.Linear(64 * 4 * 4 * 4, 8 * 4 * 4 * 4),
             nn.LeakyReLU(0.02, inplace=True),
             nn.Linear(8 * 4 * 4 * 4, config.n_embd),
-            nn.LayerNorm(config.n_embd, eps=config.layer_norm_epsilon),
+            nn.LayerNorm(config.n_embd, epsilon=config.layer_norm_epsilon),
         )
 
         self.recoveryNetFC = nn.Sequential(
@@ -174,7 +174,7 @@ class GrayScottEmbedding(EmbeddingModel):
 
         self.xidx = paddle.to_tensor(np.concatenate(xidx), dtype="int64")
         self.yidx = paddle.to_tensor(np.concatenate(yidx), dtype="int64")
-        self.kMatrixUT = nn.Parameter(0.01 * paddle.rand(self.xidx.size(0)))
+        self.kMatrixUT = nn.Parameter(0.01 * paddle.rand(self.xidx.shape[0]))
 
         # Normalization occurs inside the model
         self.register_buffer("mu", paddle.to_tensor(0.0))
@@ -196,7 +196,7 @@ class GrayScottEmbedding(EmbeddingModel):
         # Encode
         x = self._normalize(x)
         g0 = self.observableNet(x)
-        g = self.observableNetFC(g0.view(g0.size(0), -1))
+        g = self.observableNetFC(g0.view(g0.shape[0], -1))
         # Decode
         out0 = self.recoveryNetFC(g).view(-1, 64, 4, 4, 4)
         out = self.recoveryNet(out0)
@@ -214,7 +214,7 @@ class GrayScottEmbedding(EmbeddingModel):
         """
         x = self._normalize(x)
         g0 = self.observableNet(x)
-        g = self.observableNetFC(g0.view(g0.size(0), -1))
+        g = self.observableNetFC(g0.view(g0.shape[0], -1))
         return g
 
     def recover(self, g: Tensor) -> Tensor:
@@ -241,7 +241,7 @@ class GrayScottEmbedding(EmbeddingModel):
             (Tensor): [B, config.n_embd] Koopman observables at the next time-step
         """
         # Koopman operator
-        kMatrix = paddle.zeros(g.size(0), self.config.n_embd, self.config.n_embd).to(
+        kMatrix = paddle.zeros(g.shape[0], self.config.n_embd, self.config.n_embd).to(
             self.devices[0]
         )
         # Populate the off diagonal terms

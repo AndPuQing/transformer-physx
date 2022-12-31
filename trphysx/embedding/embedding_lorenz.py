@@ -14,7 +14,6 @@ import numpy as np
 from typing import Tuple
 from .embedding_model import EmbeddingModel, EmbeddingTrainingHead
 from trphysx.config.configuration_phys import PhysConfig
-from paddle.autograd import Variable
 
 logger = logging.getLogger(__name__)
 # Custom types
@@ -43,7 +42,7 @@ class LorenzEmbedding(EmbeddingModel):
             nn.Linear(config.state_dims[0], hidden_states),
             nn.ReLU(),
             nn.Linear(hidden_states, config.n_embd),
-            nn.LayerNorm(config.n_embd, eps=config.layer_norm_epsilon),
+            nn.LayerNorm(config.n_embd, epsilon=config.layer_norm_epsilon),
             nn.Dropout(config.embd_pdrop),
         )
 
@@ -65,7 +64,7 @@ class LorenzEmbedding(EmbeddingModel):
 
         self.xidx = paddle.to_tensor(np.concatenate(xidx), dtype="int64")
         self.yidx = paddle.to_tensor(np.concatenate(yidx), dtype="int64")
-        self.kMatrixUT = nn.Parameter(0.1 * paddle.rand(self.xidx.size(0)))
+        self.kMatrixUT = nn.Parameter(0.1 * paddle.rand(self.xidx.shape[0]))
 
         # Normalization occurs inside the model
         self.register_buffer("mu", paddle.to_tensor([0.0, 0.0, 0.0]))
@@ -139,7 +138,8 @@ class LorenzEmbedding(EmbeddingModel):
 
         # Apply Koopman operation
         gnext = paddle.bmm(
-            kMatrix.expand(g.size(0), kMatrix.size(0), kMatrix.size(0)), g.unsqueeze(-1)
+            kMatrix.expand(g.shape[0], kMatrix.shape[0], kMatrix.shape[0]),
+            g.unsqueeze(-1),
         )
         self.kMatrix = kMatrix
         return gnext.squeeze(-1)  # Squeeze empty dim from bmm

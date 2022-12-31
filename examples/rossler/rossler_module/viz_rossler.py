@@ -160,10 +160,10 @@ class RosslerViz(Viz):
             nplots (int, optional): Number of cases to plot, Defaults to 2.
         """
         assert (
-            y_pred.size(0) >= nplots
+            y_pred.shape[0] >= nplots
         ), "Number of provided predictions is less than the requested number of subplots"
         assert (
-            y_target.size(0) >= nplots
+            y_target.shape[0] >= nplots
         ), "Number of provided targets is less than the requested number of subplots"
         # Convert to numpy array
         y_pred = y_pred.detach().cpu().numpy()
