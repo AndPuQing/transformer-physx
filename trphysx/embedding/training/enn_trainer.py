@@ -128,7 +128,7 @@ class EmbeddingTrainer:
             cur_lr = optimizer.get_lr()
             logger.info(
                 "Epoch {:d}: Training loss {:.03f}, Lr {:.05f}".format(
-                    epoch, loss_total, cur_lr
+                    epoch, loss_total, cur_lr.numpy()[0]
                 )
             )
 
