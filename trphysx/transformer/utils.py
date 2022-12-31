@@ -37,7 +37,8 @@ class Conv1D(nn.Layer):
         super().__init__()
         self.nf = nf
         w = paddle.empty((nx, nf))
-        nn.init.normal_(w, std=0.02)
+        nn.initializer.Normal(std=0.02)(w)
+        # nn.init.normal_(w, std=0.02)
         self.weight = nn.Parameter(w)
         self.bias = nn.Parameter(paddle.zeros(nf))
 
