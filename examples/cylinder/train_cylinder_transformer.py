@@ -20,6 +20,7 @@ from trphysx.config.args import (
     DataArguments,
     ArgUtils,
 )
+from paddle.optimizer.lr import CosineAnnealingDecay
 from trphysx.config import AutoPhysConfig
 from trphysx.transformer import PhysformerTrain, PhysformerGPT2
 from trphysx.embedding import AutoEmbeddingModel
@@ -32,8 +33,8 @@ logger = logging.getLogger(__name__)
 if __name__ == "__main__":
 
     sys.argv = sys.argv + ["--init_name", "cylinder"]
-    sys.argv = sys.argv + ["--embedding_file_or_path", "./embedding_cylinder300.pth"]
-    sys.argv = sys.argv + ["--training_h5_file", "./data/cylinder_training.hdf5"]
+    # sys.argv = sys.argv + ["--embedding_file_or_path", "./embedding_cylinder300.pth"]
+    sys.argv = sys.argv + ["--training_h5_file", "./data/cylinder_train.hdf5"]
     sys.argv = sys.argv + ["--eval_h5_file", "./data/cylinder_valid.hdf5"]
     sys.argv = sys.argv + ["--train_batch_size", "4"]
     sys.argv = sys.argv + ["--n_train", "27"]
@@ -98,13 +99,14 @@ if __name__ == "__main__":
         overwrite_cache=data_args.overwrite_cache,
     )
 
+    scheduler = CosineAnnealingDecay(
+        learning_rate=training_args.lr, T_max=14, last_epoch=2, eta_min=1e-9
+    )
     # Optimizer
-    optimizer = paddle.optim.Adam(
-        model.parameters(), lr=training_args.lr, weight_decay=1e-10
+    optimizer = paddle.optimizer.Adam(
+        model.parameters(), lr=scheduler, weight_decay=1e-10
     )
-    scheduler = paddle.optim.lr_scheduler.CosineAnnealingWarmRestarts(
-        optimizer, 14, 2, eta_min=1e-9
-    )
+
     trainer = Trainer(
         model,
         training_args,
