@@ -64,8 +64,8 @@ if __name__ == "__main__":
     # Load embedding model
     embedding_model = AutoEmbeddingModel.load_model(
         model_args.embedding_name, config, model_args.embedding_file_or_path
-    ).to(training_args.src_device)
-
+    )
+    embedding_model.to(training_args.src_device)
     # Load visualization utility class
     viz = AutoViz.load_viz(model_args.viz_name, plot_dir=training_args.plot_dir)
 

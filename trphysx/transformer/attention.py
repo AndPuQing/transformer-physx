@@ -51,7 +51,7 @@ class MaskedAttention(nn.Layer):
         if mask == "tril":  # Upper triangular mask
             self.register_buffer(
                 "bias",
-                paddle.tril(paddle.ones((n_ctx, n_ctx))).reshape(1, 1, n_ctx, n_ctx),
+                paddle.tril(paddle.ones((n_ctx, n_ctx))).reshape((1, 1, n_ctx, n_ctx)),
             )
         elif mask == "block":  # Block diagonal, tril mask
             tril = paddle.tril(paddle.ones((n_ctx, n_ctx)))
