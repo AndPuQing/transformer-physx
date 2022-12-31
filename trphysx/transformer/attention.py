@@ -51,7 +51,7 @@ class MaskedAttention(nn.Layer):
         if mask == "tril":  # Upper triangular mask
             self.register_buffer(
                 "bias",
-                paddle.tril(paddle.ones((n_ctx, n_ctx), dtype=paddle.uint8)).view(
+                paddle.tril(paddle.ones((n_ctx, n_ctx), dtype=paddle.uint8)).reshape(
                     1, 1, n_ctx, n_ctx
                 ),
             )
@@ -141,7 +141,7 @@ class MaskedAttention(nn.Layer):
         """
         x = x.permute(0, 2, 1, 3).contiguous()
         new_x_shape = x.size()[:-2] + (x.size(-2) * x.size(-1),)
-        return x.view(*new_x_shape)
+        return x.reshape(new_x_shape)
 
     def split_heads(self, x, k: bool = False) -> Tensor:
         """Splits key, query or value tensor into separate heads.
@@ -156,7 +156,7 @@ class MaskedAttention(nn.Layer):
             and value, [batch, head, seq_length, head_features] split feature for key
         """
         new_x_shape = x.size()[:-1] + (self.n_head, x.size(-1) // self.n_head)
-        x = x.view(*new_x_shape)  # in Tensorflow implem: fct split_states
+        x = x.reshape(new_x_shape)  # in Tensorflow implem: fct split_states
         if k:
             return x.permute(0, 2, 3, 1)  # (batch, head, head_features, seq_length)
         else:

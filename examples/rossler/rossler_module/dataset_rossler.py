@@ -32,9 +32,9 @@ class RosslerDataset(PhysicalDataset):
             data_series = (
                 paddle.to_tensor(h5_file[key])
                 .to(embedder.devices[0])
-                .view([-1] + embedder.input_dims)
+                .reshape([-1, embedder.input_dims])
             )
-            with torch.no_grad():
+            with paddle.no_grad():
                 embedded_series = embedder.embed(data_series).cpu()
             # Stride over time-series
             for i in range(
@@ -48,7 +48,7 @@ class RosslerDataset(PhysicalDataset):
 
             samples = samples + 1
             if (
-                self.ndata > 0 and samples >= self.ndata
+                    0 < self.ndata <= samples
             ):  # If we have enough time-series samples break loop
                 break
 

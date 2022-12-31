@@ -207,8 +207,8 @@ class CylinderViz(Viz):
             y_target[:, 0].unsqueeze(1), dy=dy
         )
 
-        vortPred = vortPred.view(y_pred[:, 0].shape).detach().cpu().numpy()
-        vortTarget = vortTarget.view(y_target[:, 0].shape).detach().cpu().numpy()
+        vortPred = vortPred.reshape(y_pred[:, 0].shape).detach().cpu().numpy()
+        vortTarget = vortTarget.reshape(y_target[:, 0].shape).detach().cpu().numpy()
 
         plt.close("all")
         mpl.rcParams["font.family"] = ["serif"]  # default is sans-serif

@@ -33,8 +33,7 @@ class LorenzDataset(PhysicalDataset):
         for key in h5_file.keys():
             data_series = (
                 paddle.to_tensor(h5_file[key])
-                .to(embedder.devices[0])
-                .view([-1] + embedder.input_dims)
+                .to(embedder.devices[0]).reshape([-1, embedder.input_dims])
             )
             with paddle.no_grad():
                 embedded_series = embedder.embed(data_series).cpu()
@@ -52,7 +51,7 @@ class LorenzDataset(PhysicalDataset):
 
             samples = samples + 1
             if (
-                self.ndata > 0 and samples >= self.ndata
+                    0 < self.ndata <= samples
             ):  # If we have enough time-series samples break loop
                 break
 
