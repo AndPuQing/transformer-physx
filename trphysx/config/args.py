@@ -279,6 +279,7 @@ class ArgUtils:
             logging.info("Using a single GPU for training.")
             args.device_ids = [3]
             args.src_device = "gpu:{}".format(args.device_ids[0])
+            print(args.src_device)
             args.n_gpu = 1
         else:
             logging.info("No GPUs found, will be training on CPU.")
