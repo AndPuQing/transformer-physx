@@ -136,7 +136,7 @@ class LorenzEmbedding(EmbeddingModel):
             (Tensor): [B, config.n_embd] Koopman observables at the next time-step
         """
         # Koopman operator
-        kMatrix = paddle.zeros(self.obsdim, self.obsdim)
+        kMatrix = paddle.zeros((self.obsdim, self.obsdim))
         # Populate the off diagonal terms
         kMatrix[self.xidx, self.yidx] = self.kMatrixUT
         kMatrix[self.yidx, self.xidx] = -self.kMatrixUT
