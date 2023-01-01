@@ -63,7 +63,7 @@ class Conv1D(nn.Layer):
         x = paddle.addmm(
             self.bias.reshape((1, -1)), x.reshape((-1, x.shape[-1])), self.weight
         )
-        x = x.reshape(*size_out)
+        x = x.reshape(size_out)
         return x
 
 
