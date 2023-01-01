@@ -15,6 +15,7 @@ from abc import abstractmethod
 from typing import Dict
 
 import h5py
+import numpy as np
 import paddle
 from filelock import FileLock
 from paddle.io import Dataset
@@ -103,6 +104,8 @@ class PhysicalDataset(Dataset):
         start = time.time()
         with open(cached_features_file, "rb") as handle:
             self.examples, self.states = pickle.load(handle)
+            self.examples = paddle.to_tensor(self.examples)
+            self.states = paddle.to_tensor(self.states)
         logger.info(
             f"Loading features from cached file {cached_features_file} [took %.3f s]",
             time.time() - start,
@@ -118,7 +121,9 @@ class PhysicalDataset(Dataset):
         os.makedirs(os.path.dirname(cached_features_file), exist_ok=True)
         with open(cached_features_file, "wb") as handle:
             pickle.dump(
-                (self.examples, self.states), handle, protocol=pickle.HIGHEST_PROTOCOL
+                np.array((self.examples, self.states)),
+                handle,
+                protocol=pickle.HIGHEST_PROTOCOL,
             )
         logger.info(
             "Saving features into cached file %s [took %.3f s]",
