@@ -346,7 +346,7 @@ class Trainer:
 
         logger.info(
             "Eval embedding error: {:.02f}, State error: {:.02f}".format(
-                eval_error, state_error
+                eval_error.numpy()[0], state_error.numpy()[0]
             )
         )
         self.log_metrics.push(
