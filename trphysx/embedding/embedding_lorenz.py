@@ -208,7 +208,7 @@ class LorenzEmbeddingTrainer(EmbeddingTrainingHead):
         loss_reconstruct = 0
         mseLoss = nn.MSELoss()
 
-        xin0 = states[:, 0].to(device)  # Time-step
+        xin0 = states[:, 0]  # Time-step
 
         # Model forward for initial time-step
         g0, xRec0 = self.embedding_model(xin0)
