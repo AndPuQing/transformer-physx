@@ -151,7 +151,6 @@ class MaskedAttention(nn.Layer):
             Tensor: [batch, head, seq_length, head_features] Split features for query
             and value, [batch, head, seq_length, head_features] split feature for key
         """
-        print(self.n_head, x.shape)
         new_x_shape = list(x.shape[:-1]) + [self.n_head, x.shape[-1] // self.n_head]
         # new_x_shape = x.shape[:-1] + (self.n_head, x.shape[-1] // self.n_head)
         x = x.reshape(new_x_shape)  # in Tensorflow implem: fct split_states
@@ -184,11 +183,9 @@ class MaskedAttention(nn.Layer):
             List[Tensor]: Output consisting of output feature, key values (if requested), attention tensor (if requested)
         """
         x = self.c_attn(x)  # x -> q, k, v
-        print(self.split_size)
-        x = x.split(self.split_size, axis=2)
+        x = x.split(3, axis=2)
 
         query, key, value = x[0], x[1], x[2]
-        print(query.shape, key.shape, value.shape)
         query = self.split_heads(query)
         key = self.split_heads(
             key, k=True
