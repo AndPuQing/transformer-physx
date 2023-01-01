@@ -124,7 +124,7 @@ class PhysicalDataset(Dataset):
                 states = self.states[0].numpy()
             else:
                 states = self.states
-            if self.examples is not None:
+            if self.examples is not []:
                 examples = self.examples[0].numpy()
             else:
                 examples = self.examples
