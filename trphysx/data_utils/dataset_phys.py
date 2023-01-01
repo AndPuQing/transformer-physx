@@ -120,11 +120,11 @@ class PhysicalDataset(Dataset):
         start = time.time()
         os.makedirs(os.path.dirname(cached_features_file), exist_ok=True)
         with open(cached_features_file, "wb") as handle:
-            if self.states is not []:
+            if len(self.states) > 0:
                 states = self.states[0].numpy()
             else:
                 states = self.states
-            if self.examples is not []:
+            if len(self.examples) > 0:
                 examples = self.examples[0].numpy()
             else:
                 examples = self.examples
