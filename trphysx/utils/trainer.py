@@ -217,6 +217,9 @@ class Trainer:
             loss_total = 0.0
             model.clear_gradients()
             # Loop over mini-batched
+            optimizer.grad_clip = paddle.nn.ClipGradByGlobalNorm(
+                self.args.max_grad_norm
+            )
             for mbidx, inputs in enumerate(training_loader):
 
                 loss0, _, _ = self.training_step(model, inputs)
@@ -229,9 +232,6 @@ class Trainer:
                 ) % self.args.gradient_accumulation_steps == 0 or mbidx == len(
                     training_loader
                 ) - 1:
-                    paddle.nn.utils.clip_grad_norm_(
-                        model.parameters(), self.args.max_grad_norm
-                    )
 
                     optimizer.step()
                     lr_scheduler.step(epoch + float(mbidx) / len(training_loader))
