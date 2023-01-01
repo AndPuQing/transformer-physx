@@ -423,7 +423,7 @@ class Trainer:
         states = states
         x_in = pred_embeds.reshape([-1, pred_embeds.shape[-1]])
         out = self.embedding_model.recover(x_in)
-        out = out.view([bsize, tsize] + self.embedding_model.input_dims)
+        out = out.rshape([bsize, tsize] + self.embedding_model.input_dims)
 
         mse = nn.MSELoss()
         state_error = mse(out, states)
