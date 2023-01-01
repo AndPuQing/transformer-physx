@@ -135,7 +135,7 @@ class LorenzEmbedding(EmbeddingModel):
             (Tensor): [B, config.n_embd] Koopman observables at the next time-step
         """
         # Koopman operator
-        kMatrix = paddle.zeros(self.obsdim, self.obsdim).to(self.kMatrixUT.device)
+        kMatrix = paddle.zeros(self.obsdim, self.obsdim)
         # Populate the off diagonal terms
         kMatrix[self.xidx, self.yidx] = self.kMatrixUT
         kMatrix[self.yidx, self.xidx] = -self.kMatrixUT
@@ -218,7 +218,7 @@ class LorenzEmbeddingTrainer(EmbeddingTrainingHead):
         g1_old = g0
         # Loop through time-series
         for t0 in range(1, states.shape[1]):
-            xin0 = states[:, t0, :].to(device)  # Next time-step
+            xin0 = states[:, t0, :]
             _, xRec1 = self.embedding_model(xin0)
 
             g1Pred = self.embedding_model.koopmanOperation(g1_old)
@@ -253,13 +253,13 @@ class LorenzEmbeddingTrainer(EmbeddingTrainingHead):
         mseLoss = nn.MSELoss()
 
         # Pull out targets from prediction dataset
-        yTarget = states[:, 1:].to(device)
-        xInput = states[:, :-1].to(device)
-        yPred = paddle.zeros(yTarget.size()).to(device)
+        yTarget = states[:, 1:]
+        xInput = states[:, :-1]
+        yPred = paddle.zeros(yTarget.size())
 
         # Test accuracy of one time-step
         for i in range(xInput.size(1)):
-            xInput0 = xInput[:, i].to(device)
+            xInput0 = xInput[:, i]
             g0 = self.embedding_model.embed(xInput0)
             yPred0 = self.embedding_model.recover(g0)
             yPred[:, i] = yPred0.squeeze().detach()
