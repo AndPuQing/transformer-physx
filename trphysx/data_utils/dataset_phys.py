@@ -121,6 +121,7 @@ class PhysicalDataset(Dataset):
         os.makedirs(os.path.dirname(cached_features_file), exist_ok=True)
         with open(cached_features_file, "wb") as handle:
             if self.states is not None:
+                print(self.states)
                 states = self.states[0].numpy()
             if self.examples is not None:
                 examples = self.examples[0].numpy()
