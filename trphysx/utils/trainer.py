@@ -235,23 +235,20 @@ class Trainer:
 
                     optimizer.step()
                     lr_scheduler.step(epoch + float(mbidx) / len(training_loader))
-                    model.zero_grad()
+                    model.clear_gradients()
 
                     self.epoch = epoch + (mbidx + 1.0) / len(training_loader)
-
-            for param_group in optimizer.param_groups:
-                cur_lr = param_group["lr"]
-                break
+            cur_lr = optimizer.get_lr()
 
             logger.info("Current Learning rate: {:.05f}".format(cur_lr))
-            logger.info("Epoch {:d}: Training loss {:.05f}".format(epoch, loss_total))
+            logger.info(
+                "Epoch {:d}: Training loss {:.05f}".format(epoch, loss_total.numpy()[0])
+            )
             self.log_metrics.push(epoch=epoch, loss=loss_total)
 
             # Evaluate model
             if epoch % self.args.eval_steps == 0 or epoch == 1:
-                for param_group in optimizer.param_groups:
-                    cur_lr = param_group["lr"]
-                    break
+                cur_lr = optimizer.get_lr()
                 logger.info("Current Learning rate: {:.05f}".format(cur_lr))
                 logger.info("Evaluating...")
                 self.evaluate(epoch=epoch)
