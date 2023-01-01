@@ -104,9 +104,9 @@ class MaskedAttention(nn.Layer):
         """
         w = paddle.matmul(q, k)
         if self.scale:
-            w = w / (float(v.size(-1)) ** 0.5)
+            w = w / (float(v.shape[-1]) ** 0.5)
 
-        nd, ns = w.size(-2), w.size(-1)
+        nd, ns = w.size(-2), w.shape[-1]
         mask = self.bias[:, :, ns - nd : ns, :ns]
         w = paddle.where(mask.bool(), w, self.masked_bias.to(w.dtype))
 
