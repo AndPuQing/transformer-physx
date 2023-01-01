@@ -132,14 +132,14 @@ class Trainer:
             else self.args.train_batch_size
         )
 
-        train_sampler = RandomSampler(train_dataset)
+        # train_sampler = RandomSampler(train_dataset)
 
         data_collator = DataCollator()
 
         data_loader = DataLoader(
             train_dataset,
             batch_size=train_batch_size,
-            batch_sampler=train_sampler,
+            # batch_sampler=train_sampler,
             collate_fn=data_collator,
             drop_last=self.args.dataloader_drop_last,
         )
