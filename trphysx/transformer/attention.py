@@ -108,7 +108,7 @@ class MaskedAttention(nn.Layer):
 
         nd, ns = w.shape[-2], w.shape[-1]
         mask = self.bias[:, :, ns - nd : ns, :ns]
-        mask.set_dtype(paddle.bool)
+        mask = paddle.to_tensor(mask, dtype=paddle.bool)
         w = paddle.where(mask, w, self.masked_bias.to(w.dtype))
 
         if attention_mask is not None:
