@@ -204,7 +204,7 @@ class MaskedAttention(nn.Layer):
 
         if use_cache is True:
             present = paddle.stack(
-                (paddle.transpose(key, perm=[0, 3, 1, 2]), value)
+                (paddle.transpose(key, perm=[0, 1, 3, 2]), value)
             )  # transpose to have same shapes for stacking
         else:
             present = (None,)
