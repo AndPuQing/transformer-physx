@@ -225,7 +225,7 @@ class LorenzEmbeddingTrainer(EmbeddingTrainingHead):
 
             g1Pred = self.embedding_model.koopmanOperation(g1_old)
             xgRec1 = self.embedding_model.recover(g1Pred)
-
+            xin0 = paddle.to_tensor(xin0, dtype="float32")
             loss = (
                 loss
                 + mseLoss(xgRec1, xin0)
