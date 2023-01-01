@@ -74,7 +74,7 @@ class DataArguments:
         default=None, metadata={"help": "File path to the evaluation data hdf5 file"}
     )
     overwrite_cache: bool = field(
-        default=False,
+        default=True,
         metadata={"help": "Overwrite the cached training and evaluation sets"},
     )
     cache_path: str = field(
