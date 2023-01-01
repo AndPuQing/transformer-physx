@@ -139,7 +139,7 @@ class Trainer:
         data_loader = DataLoader(
             train_dataset,
             batch_size=train_batch_size,
-            sampler=train_sampler,
+            batch_sampler=train_sampler,
             collate_fn=data_collator,
             drop_last=self.args.dataloader_drop_last,
         )
