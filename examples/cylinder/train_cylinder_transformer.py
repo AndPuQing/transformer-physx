@@ -106,7 +106,7 @@ if __name__ == "__main__":
     )
     # Optimizer
     optimizer = paddle.optimizer.Adam(
-        model.parameters(), learning_rate=scheduler, weight_decay=1e-10
+        parameters=model.parameters(), learning_rate=scheduler, weight_decay=1e-10
     )
 
     trainer = Trainer(
