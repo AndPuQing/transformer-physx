@@ -417,11 +417,11 @@ class Trainer:
             return 0
 
         bsize = pred_embeds.shape[0]
-        tsize = pred_embeds.size(1)
-        device = self.embedding_model.devices[0]
+        tsize = pred_embeds.shape[1]
+        # device = self.embedding_model.devices[0]
 
-        states = states.to(device)
-        x_in = pred_embeds.contiguous().view(-1, pred_embeds.size(-1)).to(device)
+        states = states
+        x_in = pred_embeds.reshape([-1, pred_embeds.shape[-1]])
         out = self.embedding_model.recover(x_in)
         out = out.view([bsize, tsize] + self.embedding_model.input_dims)
 
