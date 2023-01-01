@@ -110,6 +110,7 @@ class LorenzEmbedding(EmbeddingModel):
             Tensor: [B, config.n_embd] Koopman observables
         """
         x = self._normalize(x)
+        x = paddle.to_tensor(x, dtype="float32")
         g = self.observableNet(x)
         return g
 
