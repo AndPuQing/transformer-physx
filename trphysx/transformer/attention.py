@@ -136,7 +136,7 @@ class MaskedAttention(nn.Layer):
         Returns:
             Tensor: [batch, seq_length, head * head_features] Concatenated output tensor
         """
-        x = x.transpose(perm=[0, 2, 1, 3]).contiguous()
+        x = x.transpose(perm=[0, 2, 1, 3])
         new_x_shape = list(x.shape[:-2]) + [x.shape[-2] * x.shape[-1]]
         # new_x_shape = x.shape[:-2] + (x.shape[-2] * x.shape[-1],)
         return x.reshape(new_x_shape)
