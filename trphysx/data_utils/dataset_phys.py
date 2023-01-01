@@ -120,11 +120,14 @@ class PhysicalDataset(Dataset):
         start = time.time()
         os.makedirs(os.path.dirname(cached_features_file), exist_ok=True)
         with open(cached_features_file, "wb") as handle:
-            if self.states is not None:
-                print(self.states)
+            if self.states is not []:
                 states = self.states[0].numpy()
+            else:
+                states = self.states
             if self.examples is not None:
                 examples = self.examples[0].numpy()
+            else:
+                examples = self.examples
             pickle.dump(
                 (examples, states),
                 handle,
