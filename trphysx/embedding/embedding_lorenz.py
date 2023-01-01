@@ -213,7 +213,7 @@ class LorenzEmbeddingTrainer(EmbeddingTrainingHead):
 
         # Model forward for initial time-step
         g0, xRec0 = self.embedding_model(xin0)
-        print(xRec0.dtype, xin0.dtype)
+        xin0 = paddle.to_tensor(xin0, dtype="float32")
         loss = (1e4) * mseLoss(xin0, xRec0)
         loss_reconstruct = loss_reconstruct + mseLoss(xin0, xRec0).detach()
 
