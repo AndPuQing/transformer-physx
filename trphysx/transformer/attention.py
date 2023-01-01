@@ -151,7 +151,7 @@ class MaskedAttention(nn.Layer):
             Tensor: [batch, head, seq_length, head_features] Split features for query
             and value, [batch, head, seq_length, head_features] split feature for key
         """
-        print(self.n_head, x.shape[-1] // self.n_head)
+        print(self.n_head, x.shape)
         new_x_shape = list(x.shape[:-1]) + [self.n_head, x.shape[-1] // self.n_head]
         # new_x_shape = x.shape[:-1] + (self.n_head, x.shape[-1] // self.n_head)
         x = x.reshape(new_x_shape)  # in Tensorflow implem: fct split_states
