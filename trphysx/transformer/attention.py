@@ -196,7 +196,7 @@ class MaskedAttention(nn.Layer):
         # Concat previous key and value tensors
         if layer_past is not None:
             past_key, past_value = (
-                layer_past[0].transpose((-2, -1)),
+                paddle.transpose(layer_past[0], perm=[0, 2, 3, 1]),
                 layer_past[1],
             )  # transpose back cf below
             key = paddle.concat((past_key, key), axis=-1)
@@ -204,7 +204,7 @@ class MaskedAttention(nn.Layer):
 
         if use_cache is True:
             present = paddle.stack(
-                (key.transpose((-2, -1)), value)
+                (paddle.transpose(key, perm=[0, 3, 1, 2]), value)
             )  # transpose to have same shapes for stacking
         else:
             present = (None,)
