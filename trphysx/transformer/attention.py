@@ -184,7 +184,6 @@ class MaskedAttention(nn.Layer):
             List[Tensor]: Output consisting of output feature, key values (if requested), attention tensor (if requested)
         """
         x = self.c_attn(x)  # x -> q, k, v
-        print(x.shape)
         print(self.split_size)
         x = x.split(self.split_size, axis=2)
 
