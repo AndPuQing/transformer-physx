@@ -181,7 +181,7 @@ class PhysformerGPT2(
         """
 
         # Input embeddings
-        input_shape = inputs_embeds.size()[:-1]
+        input_shape = inputs_embeds.shape[:-1]
         batch_size = inputs_embeds.shape[0]
 
         if position_ids is not None:
