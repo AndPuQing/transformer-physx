@@ -53,7 +53,7 @@ class LorenzEmbedding(EmbeddingModel):
         )
         # Learned Koopman operator
         self.obsdim = config.n_embd
-        self.kMatrixDiag = paddle.nn.create_parameter(
+        self.kMatrixDiag = paddle.create_parameter(
             shape=[config.n_embd],
             dtype="float32",
             default_initializer=nn.initializer.Constant(1.0),
@@ -68,7 +68,7 @@ class LorenzEmbedding(EmbeddingModel):
 
         self.xidx = paddle.to_tensor(np.concatenate(xidx), dtype="int64")
         self.yidx = paddle.to_tensor(np.concatenate(yidx), dtype="int64")
-        self.kMatrixUT = paddle.nn.create_parameter(
+        self.kMatrixUT = paddle.create_parameter(
             shape=[self.xidx.shape[0]],
             dtype="float32",
             default_initializer=nn.initializer.Constant(0.1),
