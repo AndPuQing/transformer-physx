@@ -329,7 +329,7 @@ class Trainer:
             del inputs["states"]
 
             if mbidx == 0:
-                timestep_error = paddle.zeros(inputs["labels_embeds"].size(1))
+                timestep_error = paddle.zeros(inputs["labels_embeds"].shape[1])
 
             pred_error0, timestep_error0, pred_embeds = self.eval_step(
                 self.model, inputs
