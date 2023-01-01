@@ -155,9 +155,11 @@ class MaskedAttention(nn.Layer):
         # new_x_shape = x.shape[:-1] + (self.n_head, x.shape[-1] // self.n_head)
         x = x.reshape(new_x_shape)  # in Tensorflow implem: fct split_states
         if k:
-            return x.permute(0, 2, 3, 1)  # (batch, head, head_features, seq_length)
+            return paddle.transpose(x, perm=[0, 2, 3, 1])
+            # return x.permute(0, 2, 3, 1)  # (batch, head, head_features, seq_length)
         else:
-            return x.permute(0, 2, 1, 3)  # (batch, head, seq_length, head_features)
+            return paddle.transpose(x, perm=[0, 2, 1, 3])
+            # return x.permute(0, 2, 1, 3)  # (batch, head, seq_length, head_features)
 
     def forward(
         self,
