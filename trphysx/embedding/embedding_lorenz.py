@@ -257,10 +257,10 @@ class LorenzEmbeddingTrainer(EmbeddingTrainingHead):
         # Pull out targets from prediction dataset
         yTarget = states[:, 1:]
         xInput = states[:, :-1]
-        yPred = paddle.zeros(yTarget.size())
+        yPred = paddle.zeros(yTarget.shape)
 
         # Test accuracy of one time-step
-        for i in range(xInput.size(1)):
+        for i in range(xInput.shape[1]):
             xInput0 = xInput[:, i]
             g0 = self.embedding_model.embed(xInput0)
             yPred0 = self.embedding_model.recover(g0)
