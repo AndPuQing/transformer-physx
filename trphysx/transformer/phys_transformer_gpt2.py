@@ -202,23 +202,23 @@ class PhysformerGPT2(
             past_length = past[0][0].size(-2)
 
         if position_ids is None:
-            device = inputs_embeds.device
+            # device = inputs_embeds.device
             position_ids = paddle.arange(
                 past_length,
                 input_shape[-1] + past_length,
                 dtype=paddle.float32,
-                device=device,
+                # device=device,
             )
             position_ids = (
                 position_ids.unsqueeze(0)
-                .view(-1, input_shape[-1])
+                .reshape((-1, input_shape[-1]))
                 .repeat(inputs_embeds.shape[0], 1)
             )
 
         # Attention mask.
         if attention_mask is not None:
             assert batch_size > 0, "batch_size has to be defined and > 0"
-            attention_mask = attention_mask.view(batch_size, -1)
+            attention_mask = attention_mask.reshape((batch_size, -1))
             # We create a 3D attention mask from a 2D tensor mask.
             # Sizes are [batch_size, 1, 1, to_seq_length]
             attention_mask = attention_mask.unsqueeze(1).unsqueeze(2)
@@ -237,7 +237,7 @@ class PhysformerGPT2(
                 0,
                 self.config.n_embd // 2,
                 dtype=paddle.float32,
-                device=inputs_embeds.device,
+                # device=inputs_embeds.device,
             )
             .unsqueeze(0)
             .unsqueeze(0)
