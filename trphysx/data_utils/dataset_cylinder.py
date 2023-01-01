@@ -10,7 +10,7 @@ github: https://github.com/zabaras/transformer-physx
 import logging
 
 import h5py
-
+import numpy as np
 # import paddle
 import paddle
 
@@ -34,9 +34,12 @@ class CylinderDataset(PhysicalDataset):
         samples = 0
         embedder.eval()
         for key in h5_file.keys():
-            ux = paddle.to_tensor(h5_file[key + "/ux"])
-            uy = paddle.to_tensor(h5_file[key + "/uy"])
-            p = paddle.to_tensor(h5_file[key + "/p"])
+            ux = np.array(h5_file[key + "/ux"])
+            uy = np.array(h5_file[key + "/uy"])
+            p = np.array(h5_file[key + "/p"])
+            ux = paddle.to_tensor(ux)
+            uy = paddle.to_tensor(uy)
+            p = paddle.to_tensor(p)
             data_series = paddle.stack([ux, uy, p], axis=1).to(embedder.devices[0])
             visc = (2.0 / float(key)) * paddle.ones(ux.shape[0], 1).to(
                 embedder.devices[0]
