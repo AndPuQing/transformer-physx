@@ -120,9 +120,9 @@ class PhysicalDataset(Dataset):
         start = time.time()
         os.makedirs(os.path.dirname(cached_features_file), exist_ok=True)
         with open(cached_features_file, "wb") as handle:
-            print(self.examples)
+            print(self.states)
             pickle.dump(
-                (self.examples, self.states),
+                (self.examples.numpy(), self.states),
                 handle,
                 protocol=pickle.HIGHEST_PROTOCOL,
             )
