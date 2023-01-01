@@ -209,10 +209,10 @@ class PhysformerGPT2(
                 dtype=paddle.float32,
                 # device=device,
             )
-            position_ids = (
-                position_ids.unsqueeze(0)
-                .reshape((-1, input_shape[-1]))
-                .repeat(inputs_embeds.shape[0], 1)
+            position_ids = paddle.repeat_interleave(
+                position_ids.unsqueeze(0).reshape((-1, input_shape[-1])),
+                inputs_embeds.shape[0],
+                axis=0,
             )
 
         # Attention mask.
