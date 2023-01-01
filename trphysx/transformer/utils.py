@@ -55,7 +55,8 @@ class Conv1D(nn.Layer):
         Returns:
             Tensor: [..., nf] output features
         """
-        size_out = x.shape[:-1] + (self.nf,)
+        size_out = list(x.shape[:-1]) + [self.nf]
+        # size_out = x.shape[:-1] + (self.nf,)
         x = paddle.addmm(self.bias, x.view(-1, x.size(-1)), self.weight)
         x = x.view(*size_out)
         return x
