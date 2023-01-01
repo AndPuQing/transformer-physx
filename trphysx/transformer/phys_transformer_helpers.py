@@ -88,7 +88,7 @@ class PhysformerTrain(PhysformerBase):
             (all hidden_states), (attention scores)
         """
 
-        max_length = labels_embeds.size(1)
+        max_length = labels_embeds.shape[1]
 
         outputs = self.transformer.generate(
             inputs_embeds=inputs_embeds, max_length=max_length, **kwargs
