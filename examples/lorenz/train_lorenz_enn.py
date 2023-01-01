@@ -17,7 +17,11 @@ from torch.optim.lr_scheduler import ExponentialLR
 
 from trphysx.config.configuration_auto import AutoPhysConfig
 from trphysx.embedding.embedding_auto import AutoEmbeddingModel
-from trphysx.embedding.training import *
+from trphysx.embedding.training import (
+    EmbeddingTrainer,
+    EmbeddingParser,
+    AutoDataHandler,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -38,9 +42,9 @@ if __name__ == "__main__":
     )
 
     args = EmbeddingParser().parse()
-    if torch.cuda.is_available():
-        use_cuda = "cuda"
-    args.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    if paddle.is_compiled_with_cuda():
+        use_cuda = True
+    args.device = paddle.set_device("gpu:0" if use_cuda else "cpu")
     logger.info("Torch device: {}".format(args.device))
 
     # Load transformer config file
@@ -62,14 +66,14 @@ if __name__ == "__main__":
     # Set up model
     model = AutoEmbeddingModel.init_trainer(args.exp_name, config).to(args.device)
     mu, std = data_handler.norm_params
-    model.embedding_model.mu = mu.to(args.device)
-    model.embedding_model.std = std.to(args.device)
+    # model.embedding_model.mu = mu.to(args.device)
+    # model.embedding_model.std = std.to(args.device)
     if args.epoch_start > 1:
         model.load_model(args.ckpt_dir, args.epoch_start)
 
-    optimizer = torch.optim.Adam(
-        model.parameters(),
-        lr=args.lr * 0.995 ** (args.epoch_start - 1),
+    optimizer = paddle.optimizer.Adam(
+        parameters=model.parameters(),
+        learning_rate=args.lr * 0.995 ** (args.epoch_start - 1),
         weight_decay=1e-8,
     )
     scheduler = ExponentialLR(optimizer, gamma=0.995)
