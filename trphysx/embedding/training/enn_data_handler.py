@@ -122,7 +122,7 @@ class LorenzDataHandler(EmbeddingDataHandler):
             # Iterate through stored time-series
             samples = 0
             for key in f.keys():
-                data_series = paddle.to_tensor(f[key])
+                data_series = paddle.to_tensor(np.array(f[key]))
                 # Stride over time-series
                 for i in range(
                     0, data_series.shape[0] - block_size + 1, stride
