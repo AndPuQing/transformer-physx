@@ -241,9 +241,7 @@ class Trainer:
             cur_lr = optimizer.get_lr()
 
             logger.info("Current Learning rate: {:.05f}".format(cur_lr))
-            logger.info(
-                "Epoch {:d}: Training loss {:.05f}".format(epoch, loss_total.numpy()[0])
-            )
+            logger.info("Epoch {:d}: Training loss {:.05f}".format(epoch, loss_total))
             self.log_metrics.push(epoch=epoch, loss=loss_total)
 
             # Evaluate model
