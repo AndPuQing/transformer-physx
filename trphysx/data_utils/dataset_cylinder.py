@@ -42,7 +42,7 @@ class CylinderDataset(PhysicalDataset):
             uy = paddle.to_tensor(uy)
             p = paddle.to_tensor(p)
             data_series = paddle.stack([ux, uy, p], axis=1)
-            visc = (2.0 / float(key)) * paddle.ones(ux.shape[0], 1)
+            visc = (2.0 / float(key)) * paddle.ones((ux.shape[0], 1))
 
             with paddle.no_grad():
                 embedded_series = embedder.embed(data_series, visc).cpu()
