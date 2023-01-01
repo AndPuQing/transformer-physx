@@ -169,13 +169,13 @@ class Trainer:
             else self.args.eval_batch_size
         )
 
-        sampler = SequentialSampler(eval_dataset)
+        # sampler = SequentialSampler(eval_dataset)
 
         data_collator = DataCollator()
 
         data_loader = DataLoader(
             eval_dataset,
-            sampler=sampler,
+            # sampler=sampler,
             batch_size=eval_batch_size,
             collate_fn=data_collator,
             drop_last=self.args.dataloader_drop_last,
