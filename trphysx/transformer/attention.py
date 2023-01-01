@@ -136,8 +136,9 @@ class MaskedAttention(nn.Layer):
         Returns:
             Tensor: [batch, seq_length, head * head_features] Concatenated output tensor
         """
-        x = x.permute(0, 2, 1, 3).contiguous()
-        new_x_shape = x.size()[:-2] + (x.size(-2) * x.size(-1),)
+        x = x.transpose(perm=[0, 2, 1, 3]).contiguous()
+        new_x_shape = list(x.shape[:-2]) + [x.shape[-2] * x.shape[-1]]
+        # new_x_shape = x.shape[:-2] + (x.shape[-2] * x.shape[-1],)
         return x.reshape(new_x_shape)
 
     def split_heads(self, x, k: bool = False) -> Tensor:
