@@ -41,6 +41,7 @@ if __name__ == "__main__":
     sys.argv = sys.argv + ["--n_eval", "6"]
     sys.argv = sys.argv + ["--stride", "4"]
     sys.argv = sys.argv + ["--max_grad_norm", "0.01"]
+    sys.argv = sys.argv + ["--overwrite_cache", "True"]
     sys.argv = sys.argv + ["--save_steps", "25"]
 
     # Parse arguments using the hugging face argument parser

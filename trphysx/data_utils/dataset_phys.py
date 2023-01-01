@@ -104,8 +104,8 @@ class PhysicalDataset(Dataset):
         start = time.time()
         with open(cached_features_file, "rb") as handle:
             self.examples, self.states = pickle.load(handle)
-            self.examples = paddle.to_tensor(self.examples)
-            self.states = paddle.to_tensor(self.states)
+            # self.examples = paddle.to_tensor(self.examples)
+            # self.states = paddle.to_tensor(self.states)
         logger.info(
             f"Loading features from cached file {cached_features_file} [took %.3f s]",
             time.time() - start,
