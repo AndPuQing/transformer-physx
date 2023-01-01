@@ -57,9 +57,6 @@ class Conv1D(nn.Layer):
         """
         size_out = list(x.shape[:-1]) + [self.nf]
         # size_out = x.shape[:-1] + (self.nf,)
-        print("x.shape", x.shape)
-        print("self.weight.shape", self.weight.shape)
-        print("self.bias.shape", self.bias.shape)
         x = paddle.addmm(
             self.bias.reshape((1, -1)), x.reshape((-1, x.shape[-1])), self.weight
         )
