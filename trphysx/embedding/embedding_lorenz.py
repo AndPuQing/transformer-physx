@@ -267,6 +267,7 @@ class LorenzEmbeddingTrainer(EmbeddingTrainingHead):
             yPred0 = self.embedding_model.recover(g0)
             yPred[:, i] = yPred0.squeeze().detach()
 
+        yTarget = paddle.to_tensor(yTarget, dtype="float32")
         test_loss = mseLoss(yTarget, yPred)
 
         return test_loss, yPred, yTarget
