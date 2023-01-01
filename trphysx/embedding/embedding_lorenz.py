@@ -93,7 +93,7 @@ class LorenzEmbedding(EmbeddingModel):
         """
         # Encode
         x = self._normalize(x)
-        print(x.dtype)
+        x = paddle.to_tensor(x, dtype="float32")
         g = self.observableNet(x)
         # Decode
         out = self.recoveryNet(g)
