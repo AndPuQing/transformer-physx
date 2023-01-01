@@ -185,6 +185,7 @@ class MaskedAttention(nn.Layer):
         """
         x = self.c_attn(x)  # x -> q, k, v
         print(x.shape)
+        print(self.split_size)
         x = x.split(self.split_size, axis=2)
 
         query, key, value = x[0], x[1], x[2]
