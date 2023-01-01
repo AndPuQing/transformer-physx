@@ -147,7 +147,7 @@ class LorenzEmbedding(EmbeddingModel):
 
         # Apply Koopman operation
         gnext = paddle.bmm(
-            kMatrix.expand(g.shape[0], kMatrix.shape[0], kMatrix.shape[0]),
+            kMatrix.expand((g.shape[0], kMatrix.shape[0], kMatrix.shape[0])),
             g.unsqueeze(-1),
         )
         self.kMatrix = kMatrix
