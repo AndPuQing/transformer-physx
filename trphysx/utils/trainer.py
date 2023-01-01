@@ -215,7 +215,7 @@ class Trainer:
             )
 
             loss_total = 0.0
-            model.zero_grad()
+            model.clear_gradients()
             # Loop over mini-batched
             for mbidx, inputs in enumerate(training_loader):
 
