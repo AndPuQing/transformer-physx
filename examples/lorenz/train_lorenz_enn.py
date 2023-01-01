@@ -13,7 +13,7 @@ github: https://github.com/zabaras/transformer-physx
 import sys
 import logging
 import paddle
-from torch.optim.lr_scheduler import ExponentialLR
+from paddle.optimizer.lr import ExponentialDecay
 
 from trphysx.config.configuration_auto import AutoPhysConfig
 from trphysx.embedding.embedding_auto import AutoEmbeddingModel
@@ -71,12 +71,15 @@ if __name__ == "__main__":
     if args.epoch_start > 1:
         model.load_model(args.ckpt_dir, args.epoch_start)
 
+    scheduler = ExponentialDecay(
+        learning_rate=args.lr * 0.995 ** (args.epoch_start - 1), gamma=0.995
+    )
+
     optimizer = paddle.optimizer.Adam(
         parameters=model.parameters(),
-        learning_rate=args.lr * 0.995 ** (args.epoch_start - 1),
+        learning_rate=scheduler,
         weight_decay=1e-8,
     )
-    scheduler = ExponentialLR(optimizer, gamma=0.995)
 
     trainer = EmbeddingTrainer(model, args, (optimizer, scheduler))
     trainer.train(training_loader, testing_loader)
