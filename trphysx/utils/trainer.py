@@ -295,7 +295,7 @@ class Trainer:
         model.train()
         for k, v in inputs.items():
             if isinstance(v, paddle.Tensor):
-                inputs[k] = v.to(self.args.src_device)
+                inputs[k] = v
 
         # Training head forward
         outputs = model(**inputs)
