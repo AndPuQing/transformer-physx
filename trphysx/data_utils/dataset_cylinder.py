@@ -11,6 +11,7 @@ import logging
 
 import h5py
 import numpy as np
+
 # import paddle
 import paddle
 
@@ -40,10 +41,8 @@ class CylinderDataset(PhysicalDataset):
             ux = paddle.to_tensor(ux)
             uy = paddle.to_tensor(uy)
             p = paddle.to_tensor(p)
-            data_series = paddle.stack([ux, uy, p], axis=1).to(embedder.devices[0])
-            visc = (2.0 / float(key)) * paddle.ones(ux.shape[0], 1).to(
-                embedder.devices[0]
-            )
+            data_series = paddle.stack([ux, uy, p], axis=1)
+            visc = (2.0 / float(key)) * paddle.ones(ux.shape[0], 1)
 
             with paddle.no_grad():
                 embedded_series = embedder.embed(data_series, visc).cpu()
