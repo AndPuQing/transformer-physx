@@ -72,11 +72,11 @@ class EmbeddingModel(nn.Layer):
         """Get list of unique device(s) model exists on"""
         devices = []
         for param in self.parameters():
-            if param.device not in devices:
-                devices.append(param.device)
+            if param.place not in devices:
+                devices.append(param.place)
         for buffer in self.buffers():
-            if buffer.device not in devices:
-                devices.append(buffer.device)
+            if buffer.place not in devices:
+                devices.append(buffer.place)
         return devices
 
     def save_model(self, save_directory: str, epoch: int = 0) -> None:
