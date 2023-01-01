@@ -253,7 +253,7 @@ class PhysformerGPT2(
         # Combine input embedding, position embeding and prop embeddings
         hidden_states = inputs_embeds + position_embeds + prop_embeds
         hidden_states = self.drop(hidden_states)
-        output_shape = input_shape + (hidden_states.size(-1),)
+        output_shape = input_shape + (hidden_states.shape[-1],)
 
         # Loop through transformer self-attention layers
         presents = ()
