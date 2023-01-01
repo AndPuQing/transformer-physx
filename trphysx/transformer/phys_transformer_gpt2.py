@@ -285,7 +285,7 @@ class PhysformerGPT2(
 
         hidden_states = self.mlp_f(self.ln_f(hidden_states))
 
-        hidden_states = hidden_states.reshape(*output_shape)
+        hidden_states = hidden_states.reshape(output_shape)
         # Add last hidden state
         if self.output_hidden_states:
             all_hidden_states = all_hidden_states + (hidden_states,)
@@ -301,7 +301,7 @@ class PhysformerGPT2(
                 input_shape[:-1] + (-1,) + all_attentions[0].shape[-2:]
             )
             all_attentions = tuple(
-                t.reshape(*attention_output_shape) for t in all_attentions
+                t.reshape(attention_output_shape) for t in all_attentions
             )
             outputs = outputs + (all_attentions,)
 
