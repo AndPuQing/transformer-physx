@@ -5,7 +5,7 @@ sys.path.append("../..")
 import logging
 
 import paddle
-from paddle.io import DataLoader, SequentialSampler
+from paddle.io import DataLoader
 
 from trphysx.config import AutoPhysConfig, HfArgumentParser
 from trphysx.config.args import (
@@ -76,11 +76,11 @@ if __name__ == "__main__":
         cache_path="./cache",
     )
 
-    sampler = SequentialSampler(eval_dataset)
+    # sampler = SequentialSampler(eval_dataset)
     data_collator = EvalDataCollator()
     eval_dataloader = DataLoader(
         eval_dataset,
-        sampler=sampler,
+        # sampler=sampler,
         batch_size=4,
         collate_fn=data_collator,
         drop_last=True,
