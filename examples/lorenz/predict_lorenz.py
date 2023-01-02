@@ -14,7 +14,7 @@ from trphysx.config.args import (
     ModelArguments,
     TrainingArguments,
 )
-from trphysx.data_utils.data_utils import EvalDataCollator
+from trphysx.data_utils.data_utils import DataCollator
 from trphysx.data_utils.dataset_lorenz import LorenzPredictDataset
 from trphysx.embedding import AutoEmbeddingModel
 from trphysx.transformer import PhysformerGPT2
@@ -76,7 +76,7 @@ if __name__ == "__main__":
         cache_path="./cache",
     )
     sampler = BatchSampler(SequenceSampler(eval_dataset), batch_size=4, drop_last=True)
-    data_collator = EvalDataCollator()
+    data_collator = DataCollator()
     eval_dataloader = DataLoader(
         eval_dataset,
         sampler=sampler,
