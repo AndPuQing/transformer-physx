@@ -15,7 +15,7 @@ from trphysx.config.args import (
     TrainingArguments,
 )
 from trphysx.data_utils.data_utils import DataCollator
-from trphysx.data_utils.dataset_lorenz import LorenzPredictDataset
+from trphysx.data_utils.dataset_lorenz import LorenzDataset
 from trphysx.embedding import AutoEmbeddingModel
 from trphysx.transformer import PhysformerGPT2
 from trphysx.viz import AutoViz
@@ -67,7 +67,7 @@ if __name__ == "__main__":
 
     viz = AutoViz.init_viz(model_args.viz_name)()
 
-    eval_dataset = LorenzPredictDataset(
+    eval_dataset = LorenzDataset(
         embedding_model,
         data_args.eval_h5_file,
         block_size=1024,
