@@ -26,8 +26,14 @@ if __name__ == "__main__":
 
     # Change this to different
     sys.argv = sys.argv + ["--init_name", "lorenz"]
-    sys.argv = sys.argv + ["--embedding_file_or_path", "./embedding_lorenz300.pth"]
-    sys.argv = sys.argv + ["--transformer_file_or_path", "./transformer_lorenz200.pth"]
+    sys.argv = sys.argv + [
+        "--embedding_file_or_path",
+        "./output/checkpoint/embedding_lorenz300.pth",
+    ]
+    sys.argv = sys.argv + [
+        "--transformer_file_or_path",
+        "./output/checkpoint/transformer_lorenz200.pth",
+    ]
     sys.argv = sys.argv + ["--eval_h5_file", "../../data/lorenz/lorenz_test.hdf5"]
     sys.argv = sys.argv + ["--n_eval", "16"]
     # sys.argv = sys.argv + ["--overwrite_cache"]

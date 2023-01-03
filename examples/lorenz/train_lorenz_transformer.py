@@ -13,6 +13,7 @@ github: https://github.com/zabaras/transformer-physx
 import sys
 import logging
 import paddle
+from paddle.optimizer.lr import CosineAnnealingDecay
 from trphysx.config import HfArgumentParser
 from trphysx.config.args import (
     ModelArguments,
@@ -32,7 +33,7 @@ logger = logging.getLogger(__name__)
 if __name__ == "__main__":
 
     sys.argv = sys.argv + ["--init_name", "lorenz"]
-    sys.argv = sys.argv + ["--embedding_file_or_path", "./embedding_lorenz300.pth"]
+    # sys.argv = sys.argv + ["--embedding_file_or_path", "./embedding_lorenz300.pth"]
     sys.argv = sys.argv + ["--training_h5_file", "./data/lorenz_training_rk.hdf5"]
     sys.argv = sys.argv + ["--eval_h5_file", "./data/lorenz_valid_rk.hdf5"]
     sys.argv = sys.argv + ["--train_batch_size", "16"]
@@ -40,6 +41,7 @@ if __name__ == "__main__":
     sys.argv = sys.argv + ["--n_train", "2048"]
     sys.argv = sys.argv + ["--save_steps", "25"]
     sys.argv = sys.argv + ["--n_eval", "16"]
+    sys.argv = sys.argv + ["--epochs", "300"]
 
     # Parse arguments using the hugging face argument parser
     parser = HfArgumentParser((ModelArguments, DataArguments, TrainingArguments))
@@ -97,13 +99,16 @@ if __name__ == "__main__":
         overwrite_cache=data_args.overwrite_cache,
     )
 
+    scheduler = CosineAnnealingDecay(
+        learning_rate=training_args.lr, T_max=14, eta_min=1e-9, last_epoch=2
+    )
+
+    optimizer = paddle.optimizer.Adam(
+        parameters=model.parameters(),
+        learning_rate=scheduler,
+        weight_decay=1e-8,
+    )
     # Optimizer
-    optimizer = torch.optim.Adam(
-        model.parameters(), lr=training_args.lr, weight_decay=1e-10
-    )
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
-        optimizer, 14, 2, eta_min=1e-9
-    )
     trainer = Trainer(
         model,
         training_args,
