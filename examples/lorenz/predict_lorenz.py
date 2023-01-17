@@ -28,11 +28,11 @@ if __name__ == "__main__":
     sys.argv = sys.argv + ["--init_name", "lorenz"]
     sys.argv = sys.argv + [
         "--embedding_file_or_path",
-        "./output/checkpoint/embedding_lorenz300.pth",
+        "./output/checkpoint/embedding_lorenz300.pdparams",
     ]
     sys.argv = sys.argv + [
         "--transformer_file_or_path",
-        "./output/checkpoint/transformer_lorenz200.pth",
+        "./output/checkpoint/transformer_lorenz200.pdparams",
     ]
     sys.argv = sys.argv + ["--eval_h5_file", "../../data/lorenz/lorenz_test.hdf5"]
     sys.argv = sys.argv + ["--n_eval", "16"]

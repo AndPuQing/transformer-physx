@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 if __name__ == "__main__":
     paddle.set_device("gpu:3")
     sys.argv = sys.argv + ["--init_name", "cylinder"]
-    # sys.argv = sys.argv + ["--embedding_file_or_path", "./embedding_cylinder300.pth"]
+    # sys.argv = sys.argv + ["--embedding_file_or_path", "./embedding_cylinder300.pdparams"]
     sys.argv = sys.argv + ["--training_h5_file", "./data/cylinder_train.hdf5"]
     sys.argv = sys.argv + ["--eval_h5_file", "./data/cylinder_valid.hdf5"]
     sys.argv = sys.argv + ["--train_batch_size", "4"]

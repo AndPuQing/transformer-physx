@@ -141,7 +141,7 @@ dmypy.json
 *.bin
 *.png
 *.pdf
-*.pth
+*.pdparams
 *.mp4
 
 # Misc folders
