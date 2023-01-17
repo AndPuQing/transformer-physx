@@ -277,7 +277,7 @@ class ArgUtils:
         # Set up parallel PyTorch single GPU device
         if paddle.device.is_compiled_with_cuda() and args.n_gpu == 1:
             logging.info("Using a single GPU for training.")
-            args.device_ids = [3]
+            args.device_ids = [0]
             args.src_device = "gpu:{}".format(args.device_ids[0])
             print(args.src_device)
             args.n_gpu = 1
