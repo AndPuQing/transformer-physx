@@ -13,7 +13,6 @@ from typing import Tuple
 import numpy as np
 import paddle
 import paddle.nn as nn
-
 from trphysx.config.configuration_phys import PhysConfig
 
 from .embedding_model import EmbeddingModel, EmbeddingTrainingHead

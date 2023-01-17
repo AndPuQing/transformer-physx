@@ -97,6 +97,8 @@ class Block(nn.Layer):
         Returns:
             List[Tensor]: List of output tensors
         """
+        assert attention_mask.dtype == paddle.int64
+        assert head_mask.dtype == paddle.int64
         # Evaluate attention heads
         output_attn = self.attn.forward(
             self.ln_1(x),
@@ -179,6 +181,8 @@ class PhysformerGPT2(
             List[Tensor]:  Output features, attention state (if requested),
             hidden states of all layers (if requested), attention tensor (if requested)
         """
+        assert attention_mask.dtype == paddle.int64
+        assert head_mask.dtype == paddle.int64
 
         # Input embeddings
         input_shape = inputs_embeds.shape[:-1]

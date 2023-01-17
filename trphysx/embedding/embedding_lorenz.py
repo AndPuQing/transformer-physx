@@ -66,8 +66,12 @@ class LorenzEmbedding(EmbeddingModel):
             yidx.append(np.arange(i, config.n_embd))
             xidx.append(np.arange(0, config.n_embd - i))
 
-        self.xidx = paddle.to_tensor(np.concatenate(xidx), dtype="int64")
-        self.yidx = paddle.to_tensor(np.concatenate(yidx), dtype="int64")
+        self.xidx = paddle.to_tensor(
+            np.concatenate(xidx), dtype="int64", stop_gradient=False
+        )
+        self.yidx = paddle.to_tensor(
+            np.concatenate(yidx), dtype="int64", stop_gradient=False
+        )
         self.kMatrixUT = paddle.create_parameter(
             shape=[self.xidx.shape[0]],
             dtype="float32",

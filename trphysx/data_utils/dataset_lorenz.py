@@ -11,7 +11,7 @@ import logging
 
 import h5py
 import paddle
-
+import numpy as np
 from ..embedding.embedding_model import EmbeddingModel
 from .dataset_phys import PhysicalDataset
 
@@ -31,9 +31,11 @@ class LorenzDataset(PhysicalDataset):
         # Iterate through stored time-series
         samples = 0
         for key in h5_file.keys():
+            data_np = np.array(h5_file[key])
             data_series = (
-                paddle.to_tensor(h5_file[key])
-                .to(embedder.devices[0]).reshape([-1, embedder.input_dims])
+                paddle.to_tensor(data_np)
+                .to(embedder.devices[0])
+                .reshape([-1, embedder.input_dims])
             )
             with paddle.no_grad():
                 embedded_series = embedder.embed(data_series).cpu()
@@ -51,7 +53,7 @@ class LorenzDataset(PhysicalDataset):
 
             samples = samples + 1
             if (
-                    0 < self.ndata <= samples
+                0 < self.ndata <= samples
             ):  # If we have enough time-series samples break loop
                 break
 
