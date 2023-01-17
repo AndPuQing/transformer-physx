@@ -63,7 +63,7 @@ class EmbeddingModel(nn.Layer):
         """Get number of learnable parameters in model"""
         count = 0
         for name, param in self.named_parameters():
-            # print(name, param.numel())
+            print(name, param.numel())
             count += param.numel()
         return count
 
