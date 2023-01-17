@@ -67,22 +67,22 @@ class EmbeddingTrainer:
             )
 
             optimizer_path = os.path.join(
-                self.args.ckpt_dir, "optimizer{:d}.pt".format(self.args.epoch_start)
+                self.args.ckpt_dir, "optimizer{:d}.pdopt".format(self.args.epoch_start)
             )
             if os.path.isfile(optimizer_path):
                 optimizer_dict = paddle.load(
                     optimizer_path, map_location=lambda storage, loc: storage
                 )
-                self.optimizers[0].load_state_dict(optimizer_dict)
+                self.optimizers[0].set_state_dict(optimizer_dict)
 
             schedular_path = os.path.join(
-                self.args.ckpt_dir, "scheduler{:d}.pt".format(self.args.epoch_start)
+                self.args.ckpt_dir, "scheduler{:d}.pdopt".format(self.args.epoch_start)
             )
             if os.path.isfile(schedular_path):
                 schedular_dict = paddle.load(
                     schedular_path, map_location=lambda storage, loc: storage
                 )
-                self.optimizers[1].load_state_dict(schedular_dict)
+                self.optimizers[1].set_state_dict(schedular_dict)
 
             self.model.load_model(self.args.ckpt_dir, epoch=self.args.epoch_start)
 
@@ -136,7 +136,9 @@ class EmbeddingTrainer:
             if epoch % 5 == 0 or epoch == 1:
                 output = self.evaluate(eval_dataloader, epoch=epoch)
                 logger.info(
-                    "Epoch {:d}: Test loss: {:.02f}".format(epoch, output["test_error"].numpy()[0])
+                    "Epoch {:d}: Test loss: {:.02f}".format(
+                        epoch, output["test_error"].numpy()[0]
+                    )
                 )
 
             # Save model checkpoint
@@ -146,11 +148,15 @@ class EmbeddingTrainer:
                 self.model.save_model(self.args.ckpt_dir, epoch=epoch)
                 paddle.save(
                     optimizer.state_dict(),
-                    os.path.join(self.args.ckpt_dir, "optimizer{:d}.pt".format(epoch)),
+                    os.path.join(
+                        self.args.ckpt_dir, "optimizer{:d}.pdopt".format(epoch)
+                    ),
                 )
                 paddle.save(
                     lr_scheduler.state_dict(),
-                    os.path.join(self.args.ckpt_dir, "scheduler{:d}.pt".format(epoch)),
+                    os.path.join(
+                        self.args.ckpt_dir, "scheduler{:d}.pdopt".format(epoch)
+                    ),
                 )
 
     @paddle.no_grad()
