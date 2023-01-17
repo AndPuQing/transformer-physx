@@ -123,7 +123,7 @@ class PhysformerBase(nn.Layer):
         os.makedirs(save_directory, exist_ok=True)
         # If we save using the predefined names, we can load using `from_pretrained`
         output_model_file = os.path.join(
-            save_directory, "{}{:d}.pth".format(self.model_name, epoch)
+            save_directory, "{}{:d}.pdparams".format(self.model_name, epoch)
         )
         # Save pytorch model to file
         paddle.save(self.state_dict(), output_model_file)
@@ -142,19 +142,13 @@ class PhysformerBase(nn.Layer):
             logger.info(
                 "Loading embedding model from file: {}".format(file_or_path_directory)
             )
-            self.load_state_dict(
-                paddle.load(
-                    file_or_path_directory, map_location=lambda storage, loc: storage
-                )
-            )
+            self.set_state_dict(paddle.load(file_or_path_directory))
         elif os.path.isdir(file_or_path_directory):
             file_path = os.path.join(
-                file_or_path_directory, "{}{:d}.pth".format(self.model_name, epoch)
+                file_or_path_directory, "{}{:d}.pdparams".format(self.model_name, epoch)
             )
             logger.info("Loading embedding model from file: {}".format(file_path))
-            self.load_state_dict(
-                paddle.load(file_path, map_location=lambda storage, loc: storage)
-            )
+            self.set_state_dict(paddle.load(file_path))
         else:
             raise FileNotFoundError(
                 "Provided path or file ({}) does not exist".format(
