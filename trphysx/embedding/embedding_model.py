@@ -59,15 +59,6 @@ class EmbeddingModel(nn.Layer):
         return self.config.n_embd
 
     @property
-    def num_parameters(self):
-        """Get number of learnable parameters in model"""
-        count = 0
-        for name, param in self.named_parameters():
-            print(name, param.numel())
-            count += param.numel()
-        return count
-
-    @property
     def devices(self):
         """Get list of unique device(s) model exists on"""
         devices = []

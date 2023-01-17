@@ -21,12 +21,13 @@ CONFIG_MAPPING = OrderedDict(
     [
         ("lorenz", LorenzConfig),
         ("cylinder", CylinderConfig),
-        ("grayscott", GrayScottConfig)
+        ("grayscott", GrayScottConfig),
     ]
 )
 CONFIG_NAME = "config_trphysx.json"
 
 logger = logging.getLogger(__name__)
+
 
 class AutoPhysConfig:
     """Helper class for creating configurations for different built in examples
@@ -34,6 +35,7 @@ class AutoPhysConfig:
     Raises:
         EnvironmentError: If direct initialization of this class is attempted.
     """
+
     def __init__(self):
         raise EnvironmentError(
             "AutoPhysConfig should not be initiated directly. The class methods should be used instead."
@@ -61,7 +63,7 @@ class AutoPhysConfig:
             config_dict = {}
 
         # First check if the model name is a pre-defined config
-        if(model_name_or_path in CONFIG_MAPPING.keys()):
+        if model_name_or_path in CONFIG_MAPPING.keys():
             config_class = CONFIG_MAPPING[model_name_or_path]
             # Init config class
             config = config_class(**kwargs)

@@ -12,9 +12,9 @@ from .configuration_phys import PhysConfig
 
 logger = logging.getLogger(__name__)
 
+
 class CylinderConfig(PhysConfig):
-    """ This is the configuration class for the modeling of the flow around a cylinder system.
-    """
+    """This is the configuration class for the modeling of the flow around a cylinder system."""
 
     model_type = "cylinder"
 
@@ -24,7 +24,7 @@ class CylinderConfig(PhysConfig):
         n_embd=128,
         n_layer=6,
         n_head=4,
-        state_dims=[3,64,128],
+        state_dims=[3, 64, 128],
         activation_function="gelu_new",
         **kwargs
     ):

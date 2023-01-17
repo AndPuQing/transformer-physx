@@ -34,7 +34,6 @@ class LorenzEmbedding(EmbeddingModel):
     def __init__(self, config: PhysConfig):
         """Constructor method"""
         super().__init__(config)
-
         hidden_states = int(abs(config.state_dims[0] - config.n_embd) / 2) + 1
         hidden_states = 500
 
@@ -45,7 +44,6 @@ class LorenzEmbedding(EmbeddingModel):
             nn.LayerNorm(config.n_embd, epsilon=config.layer_norm_epsilon),
             nn.Dropout(config.embd_pdrop),
         )
-
         self.recoveryNet = nn.Sequential(
             nn.Linear(config.n_embd, hidden_states),
             nn.ReLU(),
@@ -79,9 +77,9 @@ class LorenzEmbedding(EmbeddingModel):
         )
 
         # Normalization occurs inside the model
-        self.register_buffer("mu", paddle.to_tensor([0.0, 0.0, 0.0]))
-        self.register_buffer("std", paddle.to_tensor([1.0, 1.0, 1.0]))
-        logger.info("Number of embedding parameters: {}".format(super().num_parameters))
+        self.register_buffer("mu", paddle.to_tensor([0.0, 0.0, 0.0]), persistable=True)
+        self.register_buffer("std", paddle.to_tensor([1.0, 1.0, 1.0]), persistable=True)
+        # logger.info("Number of embedding parameters: {}".format(super().num_parameters))
 
     def forward(self, x: Tensor) -> TensorTuple:
         """Forward pass
@@ -97,7 +95,7 @@ class LorenzEmbedding(EmbeddingModel):
         """
         # Encode
         x = self._normalize(x)
-        x = paddle.to_tensor(x, dtype="float32")
+        x = paddle.to_tensor(x, dtype="float32", stop_gradient=False)
         g = self.observableNet(x)
         # Decode
         out = self.recoveryNet(g)
@@ -114,7 +112,7 @@ class LorenzEmbedding(EmbeddingModel):
             Tensor: [B, config.n_embd] Koopman observables
         """
         x = self._normalize(x)
-        x = paddle.to_tensor(x, dtype="float32")
+        x = paddle.to_tensor(x, dtype="float32", stop_gradient=False)
         g = self.observableNet(x)
         return g
 
@@ -141,7 +139,9 @@ class LorenzEmbedding(EmbeddingModel):
             (Tensor): [B, config.n_embd] Koopman observables at the next time-step
         """
         # Koopman operator
-        kMatrix = paddle.zeros((self.obsdim, self.obsdim))
+        kMatrix = paddle.to_tensor(
+            paddle.zeros((self.obsdim, self.obsdim)), stop_gradient=False
+        )
         # Populate the off diagonal terms
         kMatrix[self.xidx, self.yidx] = self.kMatrixUT
         kMatrix[self.yidx, self.xidx] = -self.kMatrixUT
@@ -218,7 +218,7 @@ class LorenzEmbeddingTrainer(EmbeddingTrainingHead):
 
         # Model forward for initial time-step
         g0, xRec0 = self.embedding_model(xin0)
-        xin0 = paddle.to_tensor(xin0, dtype="float32")
+        xin0 = paddle.to_tensor(xin0, dtype="float32", stop_gradient=False)
         loss = (1e4) * mseLoss(xin0, xRec0)
         loss_reconstruct = loss_reconstruct + mseLoss(xin0, xRec0).detach()
 
