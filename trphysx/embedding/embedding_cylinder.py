@@ -37,123 +37,123 @@ class CylinderEmbedding(EmbeddingModel):
         """Constructor method"""
         super().__init__(config)
 
-        # X, Y = np.meshgrid(np.linspace(-2, 14, 128), np.linspace(-4, 4, 64))
-        # self.mask = paddle.to_tensor(np.sqrt(X**2 + Y**2) < 1, dtype=paddle.bool)
+        X, Y = np.meshgrid(np.linspace(-2, 14, 128), np.linspace(-4, 4, 64))
+        self.mask = paddle.to_tensor(np.sqrt(X**2 + Y**2) < 1, dtype=paddle.bool)
 
         # # Encoder conv. net
-        # self.observableNet = nn.Sequential(
-        #     nn.Conv2D(
-        #         4, 16, kernel_size=(3, 3), stride=2, padding=1, padding_mode="replicate"
-        #     ),
-        #     # nn.BatchNorm2d(16),
-        #     nn.ReLU(),
-        #     # 8, 32, 64
-        #     nn.Conv2D(
-        #         16,
-        #         32,
-        #         kernel_size=(3, 3),
-        #         stride=2,
-        #         padding=1,
-        #         padding_mode="replicate",
-        #     ),
-        #     # nn.BatchNorm2d(32),
-        #     nn.ReLU(),
-        #     # 16, 16, 32
-        #     nn.Conv2D(
-        #         32,
-        #         64,
-        #         kernel_size=(3, 3),
-        #         stride=2,
-        #         padding=1,
-        #         padding_mode="replicate",
-        #     ),
-        #     # nn.BatchNorm2d(64),
-        #     nn.ReLU(),
-        #     # 16, 8, 16
-        #     nn.Conv2D(
-        #         64,
-        #         128,
-        #         kernel_size=(3, 3),
-        #         stride=2,
-        #         padding=1,
-        #         padding_mode="replicate",
-        #     ),
-        #     # nn.BatchNorm2d(128),
-        #     nn.ReLU(),
-        #     # 16, 4, 8
-        #     nn.Conv2D(
-        #         128,
-        #         config.n_embd // 32,
-        #         kernel_size=(3, 3),
-        #         stride=1,
-        #         padding=1,
-        #         padding_mode="replicate",
-        #     ),
-        # )
+        self.observableNet = nn.Sequential(
+            nn.Conv2D(
+                4, 16, kernel_size=(3, 3), stride=2, padding=1, padding_mode="replicate"
+            ),
+            # nn.BatchNorm2d(16),
+            nn.ReLU(),
+            # 8, 32, 64
+            nn.Conv2D(
+                16,
+                32,
+                kernel_size=(3, 3),
+                stride=2,
+                padding=1,
+                padding_mode="replicate",
+            ),
+            # nn.BatchNorm2d(32),
+            nn.ReLU(),
+            # 16, 16, 32
+            nn.Conv2D(
+                32,
+                64,
+                kernel_size=(3, 3),
+                stride=2,
+                padding=1,
+                padding_mode="replicate",
+            ),
+            # nn.BatchNorm2d(64),
+            nn.ReLU(),
+            # 16, 8, 16
+            nn.Conv2D(
+                64,
+                128,
+                kernel_size=(3, 3),
+                stride=2,
+                padding=1,
+                padding_mode="replicate",
+            ),
+            # nn.BatchNorm2d(128),
+            nn.ReLU(),
+            # 16, 4, 8
+            nn.Conv2D(
+                128,
+                config.n_embd // 32,
+                kernel_size=(3, 3),
+                stride=1,
+                padding=1,
+                padding_mode="replicate",
+            ),
+        )
 
-        # self.observableNetFC = nn.Sequential(
-        #     # nn.Linear(config.n_embd // 32 * 4 * 8, config.n_embd-1),
-        #     nn.LayerNorm(config.n_embd, epsilon=config.layer_norm_epsilon),
-        #     # nn.BatchNorm1d(config.n_embd, epsilon=config.layer_norm_epsilon),
-        #     nn.Dropout(config.embd_pdrop),
-        # )
+        self.observableNetFC = nn.Sequential(
+            # nn.Linear(config.n_embd // 32 * 4 * 8, config.n_embd-1),
+            nn.LayerNorm(config.n_embd, epsilon=config.layer_norm_epsilon),
+            # nn.BatchNorm1d(config.n_embd, epsilon=config.layer_norm_epsilon),
+            nn.Dropout(config.embd_pdrop),
+        )
 
-        # # Decoder conv. net
-        # self.recoveryNet = nn.Sequential(
-        #     nn.Upsample(scale_factor=2, mode="bilinear", align_corners=True),
-        #     nn.Conv2D(
-        #         config.n_embd // 32,
-        #         128,
-        #         kernel_size=(3, 3),
-        #         stride=1,
-        #         padding=1,
-        #         padding_mode="replicate",
-        #     ),
-        #     nn.ReLU(),
-        #     # 16, 8, 16
-        #     nn.Upsample(scale_factor=2, mode="bilinear", align_corners=True),
-        #     nn.Conv2D(
-        #         128,
-        #         64,
-        #         kernel_size=(3, 3),
-        #         stride=1,
-        #         padding=1,
-        #         padding_mode="replicate",
-        #     ),
-        #     nn.ReLU(),
-        #     # 16, 16, 32
-        #     nn.Upsample(scale_factor=2, mode="bilinear", align_corners=True),
-        #     nn.Conv2D(
-        #         64,
-        #         32,
-        #         kernel_size=(3, 3),
-        #         stride=1,
-        #         padding=1,
-        #         padding_mode="replicate",
-        #     ),
-        #     nn.ReLU(),
-        #     # 8, 32, 64
-        #     nn.Upsample(scale_factor=2, mode="bilinear", align_corners=True),
-        #     nn.Conv2D(
-        #         32,
-        #         16,
-        #         kernel_size=(3, 3),
-        #         stride=1,
-        #         padding=1,
-        #         padding_mode="replicate",
-        #     ),
-        #     nn.ReLU(),
-        #     # 16, 64, 128
-        #     nn.Conv2D(
-        #         16, 3, kernel_size=(3, 3), stride=1, padding=1, padding_mode="replicate"
-        #     ),
-        # )
+        # Decoder conv. net
+        self.recoveryNet = nn.Sequential(
+            nn.Upsample(scale_factor=2, mode="bilinear", align_corners=True),
+            nn.Conv2D(
+                config.n_embd // 32,
+                128,
+                kernel_size=(3, 3),
+                stride=1,
+                padding=1,
+                padding_mode="replicate",
+            ),
+            nn.ReLU(),
+            # 16, 8, 16
+            nn.Upsample(scale_factor=2, mode="bilinear", align_corners=True),
+            nn.Conv2D(
+                128,
+                64,
+                kernel_size=(3, 3),
+                stride=1,
+                padding=1,
+                padding_mode="replicate",
+            ),
+            nn.ReLU(),
+            # 16, 16, 32
+            nn.Upsample(scale_factor=2, mode="bilinear", align_corners=True),
+            nn.Conv2D(
+                64,
+                32,
+                kernel_size=(3, 3),
+                stride=1,
+                padding=1,
+                padding_mode="replicate",
+            ),
+            nn.ReLU(),
+            # 8, 32, 64
+            nn.Upsample(scale_factor=2, mode="bilinear", align_corners=True),
+            nn.Conv2D(
+                32,
+                16,
+                kernel_size=(3, 3),
+                stride=1,
+                padding=1,
+                padding_mode="replicate",
+            ),
+            nn.ReLU(),
+            # 16, 64, 128
+            nn.Conv2D(
+                16, 3, kernel_size=(3, 3), stride=1, padding=1, padding_mode="replicate"
+            ),
+        )
         # # Learned Koopman operator parameters
         self.obsdim = config.n_embd
         # # We parameterize the Koopman operator as a function of the viscosity
-        # self.kMatrixDiagNet = nn.Sequential(
-        #     nn.Linear(1, 50), nn.ReLU(), nn.Linear(50, self.obsdim)
-        # )
+        self.kMatrixDiagNet = nn.Sequential(
+            nn.Linear(1, 50), nn.ReLU(), nn.Linear(50, self.obsdim)
+        )
         # # Off-diagonal indices
         xidx = []
         yidx = []
@@ -164,9 +164,9 @@ class CylinderEmbedding(EmbeddingModel):
         self.yidx = paddle.to_tensor(np.concatenate(yidx), dtype=paddle.int64)
 
         # # The matrix here is a small NN since we need to make it dependent on the viscosity
-        # self.kMatrixUT = nn.Sequential(
-        #     nn.Linear(1, 50), nn.ReLU(), nn.Linear(50, self.xidx.shape[0])
-        # )
+        self.kMatrixUT = nn.Sequential(
+            nn.Linear(1, 50), nn.ReLU(), nn.Linear(50, self.xidx.shape[0])
+        )
         self.kMatrixLT = nn.Sequential(
             nn.Linear(1, 50), nn.ReLU(), nn.Linear(50, self.xidx.shape[0])
         )
