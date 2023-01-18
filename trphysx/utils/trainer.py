@@ -14,7 +14,7 @@ from typing import Any, Dict, Tuple
 import numpy as np
 import paddle
 import paddle.nn as nn
-from paddle.io import Dataset, DataLoader, RandomSampler
+from paddle.io import Dataset, DataLoader, RandomSampler, BatchSampler, SequenceSampler
 
 from ..config.args import TrainingArguments
 from ..data_utils.data_utils import DataCollator
@@ -132,16 +132,18 @@ class Trainer:
             else self.args.train_batch_size
         )
 
-        # train_sampler = RandomSampler(train_dataset)
-
+        train_sampler = RandomSampler(train_dataset)
+        batch_sampler = BatchSampler(
+            sampler=train_sampler,
+            batch_size=train_batch_size,
+            drop_last=self.args.dataloader_drop_last,
+        )
         data_collator = DataCollator()
 
         data_loader = DataLoader(
             train_dataset,
-            batch_size=train_batch_size,
-            # batch_sampler=train_sampler,
+            batch_sampler=batch_sampler,
             collate_fn=data_collator,
-            drop_last=self.args.dataloader_drop_last,
         )
 
         return data_loader
@@ -170,15 +172,18 @@ class Trainer:
         )
 
         # sampler = SequentialSampler(eval_dataset)
-
+        sequence_sampler = SequenceSampler(eval_dataset)
+        batch_sampler = BatchSampler(
+            sampler=sequence_sampler,
+            batch_size=eval_batch_size,
+            drop_last=self.args.dataloader_drop_last,
+        )
         data_collator = DataCollator()
 
         data_loader = DataLoader(
             eval_dataset,
-            # sampler=sampler,
-            batch_size=eval_batch_size,
+            batch_sampler=batch_sampler,
             collate_fn=data_collator,
-            drop_last=self.args.dataloader_drop_last,
         )
 
         return data_loader
