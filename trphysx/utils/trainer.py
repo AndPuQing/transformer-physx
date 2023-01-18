@@ -430,7 +430,9 @@ class Trainer:
         out = out.reshape([bsize, tsize] + self.embedding_model.input_dims)
 
         mse = nn.MSELoss()
-        state_error = mse(out.astype("float64"), states)
+        if out.dtype == states.dtype:
+            out = out.astype(states.dtype)
+        state_error = mse(out, states)
 
         if self.viz and plot:
             # Loop through mini batch and plot eval cases
