@@ -32,7 +32,7 @@ class LorenzDataset(PhysicalDataset):
         samples = 0
         for key in h5_file.keys():
             data_np = np.array(h5_file[key])
-            data_series = paddle.to_tensor(data_np).reshape([-1, embedder.input_dims])
+            data_series = paddle.to_tensor(data_np).reshape([-1] + embedder.input_dims)
             with paddle.no_grad():
                 embedded_series = embedder.embed(data_series).cpu()
 
