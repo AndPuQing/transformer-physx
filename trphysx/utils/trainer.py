@@ -430,7 +430,7 @@ class Trainer:
         out = out.reshape([bsize, tsize] + self.embedding_model.input_dims)
 
         mse = nn.MSELoss()
-        if out.dtype == states.dtype:
+        if out.dtype != states.dtype:
             out = out.astype(states.dtype)
         state_error = mse(out, states)
 
