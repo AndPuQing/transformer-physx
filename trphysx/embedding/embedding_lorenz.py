@@ -56,6 +56,7 @@ class LorenzEmbedding(EmbeddingModel):
             dtype="float32",
             default_initializer=nn.initializer.Constant(1.0),
         )
+        self.add_parameter("kMatrixDiag", self.kMatrixDiag)
 
         # Off-diagonal indices
         xidx = []
@@ -71,6 +72,7 @@ class LorenzEmbedding(EmbeddingModel):
             dtype="float32",
             default_initializer=nn.initializer.Constant(0.1),
         )
+        self.add_parameter("kMatrixUT", self.kMatrixUT)
 
         # Normalization occurs inside the model
         self.register_buffer("mu", paddle.to_tensor([0.0, 0.0, 0.0]), persistable=True)
