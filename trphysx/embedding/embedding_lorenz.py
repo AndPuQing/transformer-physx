@@ -64,12 +64,8 @@ class LorenzEmbedding(EmbeddingModel):
             yidx.append(np.arange(i, config.n_embd))
             xidx.append(np.arange(0, config.n_embd - i))
 
-        self.xidx = paddle.to_tensor(
-            np.concatenate(xidx), dtype="int64", stop_gradient=False
-        )
-        self.yidx = paddle.to_tensor(
-            np.concatenate(yidx), dtype="int64", stop_gradient=False
-        )
+        self.xidx = paddle.to_tensor(np.concatenate(xidx), dtype="int64")
+        self.yidx = paddle.to_tensor(np.concatenate(yidx), dtype="int64")
         self.kMatrixUT = paddle.create_parameter(
             shape=[self.xidx.shape[0]],
             dtype="float32",
@@ -139,9 +135,7 @@ class LorenzEmbedding(EmbeddingModel):
             (Tensor): [B, config.n_embd] Koopman observables at the next time-step
         """
         # Koopman operator
-        kMatrix = paddle.to_tensor(
-            paddle.zeros((self.obsdim, self.obsdim)), stop_gradient=False
-        )
+        kMatrix = paddle.to_tensor(paddle.zeros((self.obsdim, self.obsdim)))
         # Populate the off diagonal terms
         kMatrix[self.xidx, self.yidx] = self.kMatrixUT
         kMatrix[self.yidx, self.xidx] = -self.kMatrixUT
@@ -218,7 +212,7 @@ class LorenzEmbeddingTrainer(EmbeddingTrainingHead):
 
         # Model forward for initial time-step
         g0, xRec0 = self.embedding_model(xin0)
-        xin0 = paddle.to_tensor(xin0, dtype="float32", stop_gradient=False)
+        xin0 = paddle.to_tensor(xin0, dtype="float32")
         loss = (1e4) * mseLoss(xin0, xRec0)
         loss_reconstruct = loss_reconstruct + mseLoss(xin0, xRec0).detach()
 
