@@ -96,7 +96,6 @@ class EmbeddingTrainer:
             eval_dataloader (DataLoader): Evaluation dataloader
         """
         optimizer = self.optimizers[0]
-        optimizer.grad_clip = paddle.nn.ClipGradByGlobalNorm(clip_norm=0.1)
         lr_scheduler = self.optimizers[1]
         # Loop over epochs
         for epoch in range(self.args.epoch_start + 1, self.args.epochs + 1):

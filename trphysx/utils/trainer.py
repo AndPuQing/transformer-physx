@@ -210,7 +210,6 @@ class Trainer:
                 output_device=self.args.local_rank,
                 find_unused_parameters=True,
             )
-
         # Loop over epochs
         training_loader = self.get_train_dataloader()
         for epoch in range(self.args.epoch_start + 1, self.args.epochs + 1):
@@ -234,7 +233,7 @@ class Trainer:
                 ) % self.args.gradient_accumulation_steps == 0 or mbidx == len(
                     training_loader
                 ) - 1:
-
+                    
                     optimizer.step()
                     lr_scheduler.step(epoch + float(mbidx) / len(training_loader))
                     optimizer.clear_gradients()

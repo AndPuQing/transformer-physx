@@ -12,9 +12,9 @@ from .configuration_phys import PhysConfig
 
 logger = logging.getLogger(__name__)
 
+
 class LorenzConfig(PhysConfig):
-    """This is the configuration class for the modeling of the Lorenz system.
-    """
+    """This is the configuration class for the modeling of the Lorenz system."""
 
     model_type = "lorenz"
 
