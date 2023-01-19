@@ -46,28 +46,14 @@ class MaskedAttention(nn.Layer):
 
         n_state = nx  # in Attention: n_state=768 (nx=n_embd)
         assert n_state % config.n_head == 0
-
         # Create attention mask
-        if mask == "tril":  # Upper triangular mask
-            self.register_buffer(
-                "bias",
-                paddle.tril(paddle.ones((n_ctx, n_ctx))).reshape((1, 1, n_ctx, n_ctx)),
-            )
-        elif mask == "block":  # Block diagonal, tril mask
-            tril = paddle.tril(paddle.ones((n_ctx, n_ctx)))
-            block = paddle.ones((config.n_patches, config.n_patches))
-            # block_diag = torch.block_diag(
-            #     *[block for i in range(n_ctx // config.n_patches)]
-            # )
-            # self.register_buffer(
-            #     "bias", (tril + block_diag).clamp(0, 1).view(1, 1, n_ctx, n_ctx)
-            # )
-        else:
-            raise ValueError(
-                "Specified mask type {} is not currently supported.".format(mask)
-            )
+        self.register_buffer(
+            "bias",
+            paddle.tril(paddle.ones((n_ctx, n_ctx))).reshape((1, 1, n_ctx, n_ctx)),
+            persistable=True,
+        )
 
-        self.register_buffer("masked_bias", paddle.to_tensor(-1e4))
+        self.register_buffer("masked_bias", paddle.to_tensor(-1e4), persistable=True)
         self.n_head = config.n_head
         self.split_size = n_state
         self.scale = scale

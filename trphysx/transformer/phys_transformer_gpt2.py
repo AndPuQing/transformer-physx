@@ -306,7 +306,11 @@ class PhysformerGPT2(
         if output_attentions:
             # let the number of heads free (-1) so we can extract attention even after head pruning
             attention_output_shape = (
-                input_shape[:-1] + (-1,) + all_attentions[0].shape[-2:]
+                input_shape[:-1]
+                + [
+                    -1,
+                ]
+                + all_attentions[0].shape[-2:]
             )
             all_attentions = tuple(
                 t.reshape(attention_output_shape) for t in all_attentions

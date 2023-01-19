@@ -35,18 +35,17 @@ if __name__ == "__main__":
     # === Forward test ===
     batch_size = np.random.randint(1, 10)
     n_steps = np.random.randint(1, config.n_ctx)
-    x = paddle.randn(batch_size, n_steps, config.n_embd)  # Batch, time-steps, embed
+    x = paddle.randn((batch_size, n_steps, config.n_embd))  # Batch, time-steps, embed
     output = model(x, use_cache=False, output_attentions=True)
 
     # Test output tensor size is correct
-    assert output[0].size() == paddle.Size((batch_size, n_steps, config.n_ctx))
+    print(type(output[0].shape))
+    assert output[0].shape == [batch_size, n_steps, config.n_ctx]
     # Test attention matrix sizes
     assert type(output[1]) == tuple
     assert len(output[1]) == config.n_layer
     for i in range(config.n_layer):
-        assert output[1][i].size() == paddle.Size(
-            (batch_size, config.n_head, n_steps, n_steps)
-        )
+        assert output[1][i].shape == [batch_size, config.n_head, n_steps, n_steps]
         # Make sure attention scores at each step are summing up to 1 (approx.)
         assert (
             paddle.abs(paddle.mean(1.0 - paddle.sum(output[1][i], axis=-1))) < 1e-6
@@ -54,9 +53,9 @@ if __name__ == "__main__":
 
     # Test generation
     n_steps = np.random.randint(config.n_ctx, 2 * config.n_ctx)
-    inputs_embeds = paddle.randn(batch_size, 1, config.n_embd)
+    inputs_embeds = paddle.randn((batch_size, 1, config.n_embd))
     output = model.generate(
         inputs_embeds=inputs_embeds, max_length=n_steps, use_cache=False
     )
 
-    assert output[0].size() == paddle.Size((batch_size, n_steps, config.n_embd))
+    assert output[0].shape == [batch_size, n_steps, config.n_embd]

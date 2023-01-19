@@ -54,7 +54,7 @@ class LorenzEmbedding(EmbeddingModel):
         self.kMatrixDiag = paddle.create_parameter(
             shape=[config.n_embd],
             dtype="float32",
-            default_initializer=nn.initializer.Constant(1.0),
+            default_initializer=nn.initializer.Assign(np.linspace(1, 0, config.n_embd)),
         )
         self.add_parameter("kMatrixDiag", self.kMatrixDiag)
 
@@ -70,7 +70,9 @@ class LorenzEmbedding(EmbeddingModel):
         self.kMatrixUT = paddle.create_parameter(
             shape=[self.xidx.shape[0]],
             dtype="float32",
-            default_initializer=nn.initializer.Constant(0.1),
+            default_initializer=nn.initializer.Assign(
+                np.random.rand(self.xidx.shape[0])
+            ),
         )
         self.add_parameter("kMatrixUT", self.kMatrixUT)
 

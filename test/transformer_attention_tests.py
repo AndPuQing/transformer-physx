@@ -34,16 +34,18 @@ if __name__ == "__main__":
     n_state = np.random.randint(low=1, high=10)
     attention = MaskedAttention(n_state, config.n_ctx, config)
 
-    q = paddle.linspace(0, 1, n_state).unsqueeze(0).repeat(config.n_ctx, 1)
-    k = paddle.ones(n_state, config.n_ctx)
-    v = paddle.ones(config.n_ctx, config.n_ctx)
+    q = paddle.linspace(0, 1, n_state).unsqueeze(0)
+    # .repeat(config.n_ctx, 1)
+    q = paddle.repeat_interleave(q, config.n_ctx, axis=0)
+    k = paddle.ones((n_state, config.n_ctx))
+    v = paddle.ones((config.n_ctx, config.n_ctx))
 
     outputs = attention._attn(q, k, v, output_attentions=True)
 
     w_target = nn.Softmax(axis=-1)(
-        paddle.tril(paddle.ones(config.n_ctx, config.n_ctx), diagonal=0)
+        paddle.tril(paddle.ones((config.n_ctx, config.n_ctx)), diagonal=0)
     )
-    target = paddle.ones(config.n_ctx, config.n_ctx)
+    target = paddle.ones((config.n_ctx, config.n_ctx))
     assert (outputs[1].squeeze() == w_target).sum()
     assert (outputs[0].squeeze() == target).sum()
 
@@ -54,14 +56,14 @@ if __name__ == "__main__":
     n_steps = np.random.randint(1, 10)
     attention = MaskedAttention(n_state, config.n_ctx, config)
 
-    x = paddle.randn(n_batch, n_steps, n_state)  # (batch, sequence, dimension)
+    x = paddle.randn((n_batch, n_steps, n_state))  # (batch, sequence, dimension)
     # Test key split heads
     output = attention.split_heads(x, k=True)
-    assert output.size(1) == config.n_head
+    assert output.shape[1] == config.n_head
 
     # Test query/value split heads
     output = attention.split_heads(x)
-    assert output.size(1) == config.n_head  # Dimension 1 is number of attention heads
+    assert output.shape[1] == config.n_head  # Dimension 1 is number of attention heads
 
     # Merge heads and check recovery
     output = attention.merge_heads(output)
@@ -70,17 +72,20 @@ if __name__ == "__main__":
     # === Blocked Masked Attention Tests ===
     config = PhooBlockConfig()
     n_state = np.random.randint(low=2, high=10)
-    attention = MaskedAttention(n_state, config.n_ctx, config, mask="block")
+    attention = MaskedAttention(n_state, config.n_ctx, config)
 
     # Check if bias is block diag based on row sums which should increase
     # at an interval of config.n_patches
     bias = attention.bias.squeeze()
-    bias_row_sum = bias.sum(dim=1) - config.n_patches
+
+    bias_row_sum = bias.sum(axis=1) - config.n_patches
     target_row_sum = (
         paddle.arange(0, config.n_ctx, 1)
         - paddle.arange(0, config.n_ctx, 1) % config.n_patches
     )
-    assert paddle.all(paddle.eq(bias_row_sum, target_row_sum))
+    print(bias_row_sum)
+    print(target_row_sum)
+    assert paddle.all(paddle.equal(bias_row_sum, target_row_sum))
 
     # config = PhooBlockConfig()
     # config.n_ctx = 4
