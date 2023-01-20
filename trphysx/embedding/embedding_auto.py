@@ -17,12 +17,14 @@ from .embedding_cylinder import CylinderEmbedding, CylinderEmbeddingTrainer
 from .embedding_grayscott import GrayScottEmbedding, GrayScottEmbeddingTrainer
 from .embedding_lorenz import LorenzEmbedding, LorenzEmbeddingTrainer
 from .embedding_model import EmbeddingModel, EmbeddingTrainingHead
+from .embedding_rossler import RosslerEmbedding, RosslerEmbeddingTrainer
 
 MODEL_MAPPING = OrderedDict(
     [
         ("lorenz", LorenzEmbedding),
         ("cylinder", CylinderEmbedding),
         ("grayscott", GrayScottEmbedding),
+        ("rossler", RosslerEmbedding),
     ]
 )
 
@@ -31,6 +33,7 @@ TRAINING_MAPPING = OrderedDict(
         ("lorenz", LorenzEmbeddingTrainer),
         ("cylinder", CylinderEmbeddingTrainer),
         ("grayscott", GrayScottEmbeddingTrainer),
+        ("rossler", RosslerEmbeddingTrainer),
     ]
 )
 

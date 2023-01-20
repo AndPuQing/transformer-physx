@@ -8,12 +8,11 @@ github: https://github.com/zabaras/transformer-physx
 =====
 """
 import dataclasses
-from dataclasses import dataclass
 import sys
 from argparse import ArgumentParser
 from enum import Enum
 from pathlib import Path
-from typing import Any, Iterable, List, Dict, Optional, Tuple, Union
+from typing import Iterable, List, Dict, Tuple, Union
 from typing_extensions import Protocol
 
 
@@ -35,16 +34,17 @@ class HfArgumentParser(ArgumentParser):
 
     Args:
         dataclass_types (Union[DataClass, Iterable[DataClass]]):
-            Dataclass type, or list of dataclass types for which 
+            Dataclass type, or list of dataclass types for which
             we will "fill" instances with the parsed args.
         kwargs (optional): Passed to `argparse.ArgumentParser()` in the regular way.
     """
 
     dataclass_types: Iterable[DataClass]
 
-    def __init__(self, dataclass_types: Union[DataClass, Iterable[DataClass]], **kwargs):
-        """Constructor
-        """
+    def __init__(
+        self, dataclass_types: Union[DataClass, Iterable[DataClass]], **kwargs
+    ):
+        """Constructor"""
         super().__init__(**kwargs)
         if dataclasses.is_dataclass(dataclass_types):
             dataclass_types = [dataclass_types]
@@ -78,8 +78,13 @@ class HfArgumentParser(ArgumentParser):
                 if field.default is not dataclasses.MISSING:
                     kwargs["default"] = field.default
             elif field.type is bool:
-                if field.type is bool or (field.default is not None and field.default is not dataclasses.MISSING):
-                    kwargs["action"] = "store_false" if field.default is True else "store_true"
+                if field.type is bool or (
+                    field.default is not None
+                    and field.default is not dataclasses.MISSING
+                ):
+                    kwargs["action"] = (
+                        "store_false" if field.default is True else "store_true"
+                    )
                 if field.default is True:
                     field_name = f"--no_{field.name}"
                     kwargs["dest"] = field.name
@@ -107,7 +112,7 @@ class HfArgumentParser(ArgumentParser):
         args: Iterable[str] = None,
         return_remaining_strings: bool = False,
         look_for_args_file: bool = True,
-        args_filename: str = None
+        args_filename: str = None,
     ) -> Tuple[DataClass]:
         """
         Parse command-line args into instances of the specified dataclass types.
@@ -137,8 +142,7 @@ class HfArgumentParser(ArgumentParser):
 
             if args_file.exists():
                 fargs = args_file.read_text().split()
-                args = fargs + \
-                    args if args is not None else fargs + sys.argv[1:]
+                args = fargs + args if args is not None else fargs + sys.argv[1:]
                 # in case of duplicate arguments the first one has precedence
                 # so we append rather than prepend.
         namespace, remaining_args = self.parse_known_args(args=args)
@@ -158,6 +162,7 @@ class HfArgumentParser(ArgumentParser):
         else:
             if remaining_args:
                 raise ValueError(
-                    f"Some specified arguments are not used by the HfArgumentParser: {remaining_args}")
+                    f"Some specified arguments are not used by the HfArgumentParser: {remaining_args}"
+                )
 
             return (*outputs,)

@@ -8,7 +8,7 @@ github: https://github.com/zabaras/transformer-physx
 =====
 """
 import logging
-from trphysx.config import PhysConfig
+from .configuration_phys import PhysConfig
 
 logger = logging.getLogger(__name__)
 

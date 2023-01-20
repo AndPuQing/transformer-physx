@@ -8,10 +8,13 @@ github: https://github.com/zabaras/transformer-physx
 =====
 """
 import logging
+
 import h5py
+import numpy as np
 import paddle
-from trphysx.data_utils import PhysicalDataset
-from trphysx.embedding import EmbeddingModel
+
+from ..embedding.embedding_model import EmbeddingModel
+from .dataset_phys import PhysicalDataset
 
 logger = logging.getLogger(__name__)
 
@@ -29,10 +32,8 @@ class RosslerDataset(PhysicalDataset):
         # Iterate through stored time-series
         samples = 0
         for key in h5_file.keys():
-            data_series = (
-                paddle.to_tensor(h5_file[key])
-                .to(embedder.devices[0])
-                .reshape([-1, embedder.input_dims])
+            data_series = paddle.to_tensor(np.array(h5_file[key])).reshape(
+                [-1, embedder.input_dims]
             )
             with paddle.no_grad():
                 embedded_series = embedder.embed(data_series).cpu()
@@ -48,7 +49,7 @@ class RosslerDataset(PhysicalDataset):
 
             samples = samples + 1
             if (
-                    0 < self.ndata <= samples
+                0 < self.ndata <= samples
             ):  # If we have enough time-series samples break loop
                 break
 

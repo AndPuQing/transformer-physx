@@ -661,11 +661,192 @@ class GrayScottDataHandler(EmbeddingDataHandler):
         return testing_loader
 
 
+class RosslerDataHandler(EmbeddingDataHandler):
+    """Embedding data handler for Rossler system.
+    Contains methods for creating training and testing loaders,
+    dataset class and data collator.
+    """
+
+    class RosslerDataset(Dataset):
+        def __init__(self, examples):
+            self.examples = examples
+
+        def __len__(self):
+            return len(self.examples)
+
+        def __getitem__(self, i) -> Dict[str, paddle.Tensor]:
+            return {"states": self.examples[i]}
+
+    class RosslerDataCollator:
+        """
+        Data collator for rossler embedding problem
+        """
+
+        # Default collator
+        def __call__(
+            self, examples: List[Dict[str, paddle.Tensor]]
+        ) -> Dict[str, paddle.Tensor]:
+
+            x_data_tensor = paddle.stack([example["states"] for example in examples])
+            return {"states": x_data_tensor}
+
+    def createTrainingLoader(
+        self,
+        file_path: str,
+        block_size: int,
+        stride: int = 1,
+        ndata: int = -1,
+        batch_size: int = 32,
+        shuffle=True,
+    ) -> DataLoader:
+        """Creating embedding training data loader for Rossler system.
+        For a single training simulation, the total time-series is sub-chunked into
+        smaller blocks for training.
+
+        Args:
+            file_path (str): Path to HDF5 file with training data
+            block_size (int): The length of time-series blocks
+            stride (int): Stride of each time-series block
+            ndata (int, optional): Number of training time-series. If negative, all of the provided
+            data will be used. Defaults to -1.
+            batch_size (int, optional): Training batch size. Defaults to 32.
+            shuffle (bool, optional): Turn on mini-batch shuffling in dataloader. Defaults to True.
+
+        Returns:
+            (DataLoader): Training loader
+        """
+        logger.info("Creating training loader")
+        assert os.path.isfile(file_path), "Training HDF5 file {} not found".format(
+            file_path
+        )
+
+        examples = []
+        with h5py.File(file_path, "r") as f:
+            # Iterate through stored time-series
+            samples = 0
+            for key in f.keys():
+                data_series = paddle.to_tensor(np.array(f[key]))
+                # Stride over time-series by specified block size
+                for i in range(0, data_series.shape[0] - block_size + 1, stride):
+                    examples.append(data_series[i : i + block_size].unsqueeze(0))
+
+                samples = samples + 1
+                if (
+                    ndata > 0 and samples > ndata
+                ):  # If we have enough time-series samples break loop
+                    break
+
+        data = paddle.concat(examples, axis=0)
+        logger.info("Training data-set size: {}".format(data.shape))
+
+        # Normalize training data
+        # Normalize x and y with Gaussian, normalize z with max/min
+        self.mu = paddle.to_tensor(
+            [
+                paddle.mean(data[:, :, 0]),
+                paddle.mean(data[:, :, 1]),
+                paddle.min(data[:, :, 2]),
+            ]
+        )
+        self.std = paddle.to_tensor(
+            [
+                paddle.std(data[:, :, 0]),
+                paddle.std(data[:, :, 1]),
+                paddle.max(data[:, :, 2]) - paddle.min(data[:, :, 2]),
+            ]
+        )
+
+        # Needs to min-max normalization due to the reservoir matrix, needing to have a spectral density below 1
+        if data.shape[0] < batch_size:
+            logger.warn("Lower batch-size to {:d}".format(data.shape[0]))
+            batch_size = data.shape[0]
+
+        dataset = self.RosslerDataset(data)
+        data_collator = self.RosslerDataCollator()
+        training_loader = DataLoader(
+            dataset,
+            batch_size=batch_size,
+            shuffle=shuffle,
+            collate_fn=data_collator,
+            drop_last=True,
+        )
+        return training_loader
+
+    def createTestingLoader(
+        self,
+        file_path: str,
+        block_size: int,
+        ndata: int = -1,
+        batch_size: int = 32,
+        shuffle=False,
+    ) -> DataLoader:
+        """Creating testing/validation data loader for Rossler system.
+        For a data case with time-steps [0,T], this method extract a smaller
+        time-series to be used for testing [0, S], s.t. S < T.
+
+        Args:
+            file_path (str): Path to HDF5 file with testing data
+            block_size (int): The length of testing time-series
+            ndata (int, optional): Number of testing time-series. If negative, all of the provided
+            data will be used. Defaults to -1.
+            batch_size (int, optional): Testing batch size. Defaults to 32.
+            shuffle (bool, optional): Turn on mini-batch shuffling in dataloader. Defaults to False.
+
+        Returns:
+            (DataLoader): Testing/validation data loader
+        """
+        logger.info("Creating testing loader")
+        assert os.path.isfile(file_path), "Testing HDF5 file {} not found".format(
+            file_path
+        )
+
+        examples = []
+        with h5py.File(file_path, "r") as f:
+            # Iterate through stored time-series
+            samples = 0
+            for key in f.keys():
+                data_series = paddle.to_tensor(np.array(f[key]))
+                # Stride over time-series
+                for i in range(
+                    0, data_series.shape[0] - block_size + 1, block_size
+                ):  # Truncate in block of block_size
+                    examples.append(data_series[i : i + block_size].unsqueeze(0))
+                    break
+
+                samples = samples + 1
+                if (
+                    ndata > 0 and samples >= ndata
+                ):  # If we have enough time-series samples break loop
+                    break
+
+        # Combine data-series
+        data = paddle.concat(examples, axis=0)
+        logger.info("Testing data-set size: {}".format(data.shape))
+
+        if data.shape[0] < batch_size:
+            logger.warn("Lower batch-size to {:d}".format(data.shape[0]))
+            batch_size = data.shape[0]
+
+        data = (data - self.mu.squeeze()) / self.std.squeeze()
+        dataset = self.RosslerDataset(data)
+        data_collator = self.RosslerDataCollator()
+        testing_loader = DataLoader(
+            dataset,
+            batch_size=batch_size,
+            shuffle=shuffle,
+            collate_fn=data_collator,
+            drop_last=False,
+        )
+
+        return testing_loader
+
+
 LOADER_MAPPING = OrderedDict(
     [
         ("lorenz", LorenzDataHandler),
         ("cylinder", CylinderDataHandler),
         ("grayscott", GrayScottDataHandler),
+        ("rossler", RosslerDataHandler),
     ]
 )
 

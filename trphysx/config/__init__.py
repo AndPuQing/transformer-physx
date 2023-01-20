@@ -1,4 +1,4 @@
-__all__ = ['args']
+__all__ = ["args"]
 
 from .args import *
 from .arg_parser import HfArgumentParser
@@ -7,3 +7,4 @@ from .configuration_cylinder import CylinderConfig
 from .configuration_grayscott import GrayScottConfig
 from .configuration_lorenz import LorenzConfig
 from .configuration_phys import PhysConfig
+from .configuration_rossler import RosslerConfig

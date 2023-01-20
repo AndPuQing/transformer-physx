@@ -11,7 +11,7 @@ import os
 import logging
 import paddle
 from dataclasses import dataclass, field
-from typing import Optional, Tuple  # Needs python 3.8 for literal
+from typing import Tuple  # Needs python 3.8 for literal
 
 HOME = os.getcwd()
 INITS = ["lorenz", "cylinder", "grayscott"]

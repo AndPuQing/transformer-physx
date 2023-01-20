@@ -16,12 +16,14 @@ from .configuration_lorenz import LorenzConfig
 from .configuration_cylinder import CylinderConfig
 from .configuration_grayscott import GrayScottConfig
 from .configuration_phys import PhysConfig
+from .configuration_rossler import RosslerConfig
 
 CONFIG_MAPPING = OrderedDict(
     [
         ("lorenz", LorenzConfig),
         ("cylinder", CylinderConfig),
         ("grayscott", GrayScottConfig),
+        ("rossler", RosslerConfig),
     ]
 )
 CONFIG_NAME = "config_trphysx.json"

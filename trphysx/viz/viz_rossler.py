@@ -7,17 +7,16 @@ doi:
 github: https://github.com/zabaras/transformer-physx
 =====
 """
-import paddle
-import numpy as np
-
 import matplotlib as mpl
+import numpy as np
+import paddle
 
 mpl.use("agg")
 import matplotlib.pyplot as plt
-from matplotlib import rc
-from mpl_toolkits.mplot3d.art3d import Line3DCollection
-from matplotlib.patches import Rectangle
 from matplotlib.legend_handler import HandlerBase
+from matplotlib.patches import Rectangle
+from mpl_toolkits.mplot3d.art3d import Line3DCollection
+
 from trphysx.viz import Viz
 
 Tensor = (paddle.Tensor,)
