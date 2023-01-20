@@ -33,7 +33,7 @@ class RosslerDataset(PhysicalDataset):
         samples = 0
         for key in h5_file.keys():
             data_series = paddle.to_tensor(np.array(h5_file[key])).reshape(
-                [-1, embedder.input_dims]
+                [-1] + embedder.input_dims
             )
             with paddle.no_grad():
                 embedded_series = embedder.embed(data_series).cpu()

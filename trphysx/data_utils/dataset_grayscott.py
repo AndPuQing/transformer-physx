@@ -10,6 +10,7 @@ github: https://github.com/zabaras/transformer-physx
 import logging
 
 import h5py
+import numpy as np
 import paddle
 
 from ..embedding.embedding_model import EmbeddingModel
@@ -40,8 +41,8 @@ class GrayscottDataset(PhysicalDataset):
         # Loop simulations
         for key in h5_file.keys():
 
-            u = paddle.to_tensor(h5_file[key + "/u"])
-            v = paddle.to_tensor(h5_file[key + "/v"])
+            u = paddle.to_tensor(np.array(h5_file[key + "/u"]))
+            v = paddle.to_tensor(np.array(h5_file[key + "/v"]))
             data_series = paddle.stack([u, v], axis=1).to(embedder.devices[0])
             # data_series = torch.nn.functional.interpolate(data_series, (32, 32, 32), mode='trilinear', align_corners=True)
 
@@ -131,11 +132,7 @@ class GrayscottPredictDataset(GrayscottDataset):
         Returns:
             (paddle.Tensor): [B, 2, H, W, D] physical state variable tensor
         """
-        x = (
-            x0.contiguous()
-            .view(-1, self.embedder.embedding_dims)
-            .to(self.embedder.devices[0])
-        )
+        x = x0.contiguous().view(-1, self.embedder.embedding_dims)
         out = paddle.zeros([x.shape[0]] + self.embedder.input_dims)
         # Mini-batch
         for i in range(0, x.shape[0], mb_size):

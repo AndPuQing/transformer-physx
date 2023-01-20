@@ -174,12 +174,20 @@ class GrayScottEmbedding(EmbeddingModel):
 
         self.xidx = paddle.to_tensor(np.concatenate(xidx), dtype="int64")
         self.yidx = paddle.to_tensor(np.concatenate(yidx), dtype="int64")
-        self.kMatrixUT = nn.Parameter(0.01 * paddle.rand(self.xidx.shape[0]))
+        self.kMatrixUT = paddle.create_parameter(
+            shape=[self.xidx.shape[0]],
+            dtype="float32",
+            default_initializer=nn.initializer.Assign(
+                0.01 * paddle.rand(self.xidx.shape[0])
+            ),
+        )
+        self.add_parameter("kMatrixUT", self.kMatrixUT)
+        # self.kMatrixUT = nn.Parameter(0.01 * paddle.rand(self.xidx.shape[0]))
 
         # Normalization occurs inside the model
         self.register_buffer("mu", paddle.to_tensor(0.0))
         self.register_buffer("std", paddle.to_tensor(1.0))
-        logger.info("Number of embedding parameters: {}".format(super().num_parameters))
+        # logger.info("Number of embedding parameters: {}".format(super().num_parameters))
 
     def forward(self, x: Tensor) -> TensorTuple:
         """Forward pass
@@ -195,10 +203,11 @@ class GrayScottEmbedding(EmbeddingModel):
         """
         # Encode
         x = self._normalize(x)
+        x = x.astype("float32")
         g0 = self.observableNet(x)
-        g = self.observableNetFC(g0.view(g0.shape[0], -1))
+        g = self.observableNetFC(g0.reshape((g0.shape[0], -1)))
         # Decode
-        out0 = self.recoveryNetFC(g).view(-1, 64, 4, 4, 4)
+        out0 = self.recoveryNetFC(g).reshape((-1, 64, 4, 4, 4))
         out = self.recoveryNet(out0)
         xhat = self._unnormalize(out)
         return g, xhat, g0, out0, self._unnormalize(self.recoveryNet(g0))
@@ -213,8 +222,9 @@ class GrayScottEmbedding(EmbeddingModel):
             Tensor: [B, config.n_embd] Koopman observables
         """
         x = self._normalize(x)
+        x = x.astype("float32")
         g0 = self.observableNet(x)
-        g = self.observableNetFC(g0.view(g0.shape[0], -1))
+        g = self.observableNetFC(g0.reshape((g0.shape[0], -1)))
         return g
 
     def recover(self, g: Tensor) -> Tensor:
@@ -226,7 +236,7 @@ class GrayScottEmbedding(EmbeddingModel):
         Returns:
             (Tensor): [B, 2, H, W, D] Physical feature tensor
         """
-        out = self.recoveryNetFC(g).view(-1, 64, 4, 4, 4)
+        out = self.recoveryNetFC(g).reshape((-1, 64, 4, 4, 4))
         out = self.recoveryNet(out)
         x = self._unnormalize(out)
         return x
@@ -241,9 +251,7 @@ class GrayScottEmbedding(EmbeddingModel):
             (Tensor): [B, config.n_embd] Koopman observables at the next time-step
         """
         # Koopman operator
-        kMatrix = paddle.zeros(g.shape[0], self.config.n_embd, self.config.n_embd).to(
-            self.devices[0]
-        )
+        kMatrix = paddle.zeros(g.shape[0], self.config.n_embd, self.config.n_embd)
         # Populate the off diagonal terms
         kMatrix[:, self.xidx, self.yidx] = self.kMatrixUT
         kMatrix[:, self.yidx, self.xidx] = -self.kMatrixUT
@@ -318,8 +326,8 @@ class GrayScottEmbeddingTrainer(EmbeddingTrainingHead):
         loss_reconstruct = 0
         mseLoss = nn.MSELoss()
 
-        xin0 = states[:, 0].to(device)  # Initial time-step
-
+        xin0 = states[:, 0]  # Initial time-step
+        xin0 = xin0.astype("float32")
         # Model forward for initial time-step
         g0, xRec0, g1, g2, xRec1 = self.embedding_model(xin0)
         loss = (1e4) * mseLoss(xin0, xRec0) + (1e3) * mseLoss(g1, g2)
@@ -328,7 +336,8 @@ class GrayScottEmbeddingTrainer(EmbeddingTrainingHead):
         g1_old = g0
         # Loop through time-series
         for t0 in range(1, states.shape[1]):
-            xin0 = states[:, t0, :].to(device)  # Next time-step
+            xin0 = states[:, t0, :]  # Next time-step
+            xin0 = xin0.astype("float32")
             g1, xRec1, g2, g3, xRec2 = self.embedding_model(xin0)
             # Apply Koopman transform
             g1Pred = self.embedding_model.koopmanOperation(g1_old)

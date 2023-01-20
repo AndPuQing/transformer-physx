@@ -13,12 +13,14 @@ from .dataset_cylinder import CylinderDataset
 from .dataset_grayscott import GrayscottDataset
 from .dataset_lorenz import LorenzDataset
 from .dataset_phys import PhysicalDataset
+from .dataset_rossler import RosslerDataset
 
 DATASET_MAPPING = OrderedDict(
     [
         ("lorenz", LorenzDataset),
         ("cylinder", CylinderDataset),
         ("grayscott", GrayscottDataset),
+        ("rossler", RosslerDataset),
     ]
 )
 

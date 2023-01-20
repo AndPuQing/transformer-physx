@@ -17,7 +17,7 @@ from matplotlib.legend_handler import HandlerBase
 from matplotlib.patches import Rectangle
 from mpl_toolkits.mplot3d.art3d import Line3DCollection
 
-from trphysx.viz import Viz
+from .viz_model import Viz
 
 Tensor = (paddle.Tensor,)
 
